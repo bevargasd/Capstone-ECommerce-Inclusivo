@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<!-- dame_head.html -->
+<!-- Incluir la plantilla del head -->
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/registro.css' %}">
+
+{% include 'core/plantillas/dame_head.html' %}
+
+<head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agregar productos</title>
+<style>
+    /* Asegúrate de ajustar la ruta de la imagen según su ubicación */
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        background-image: url("{% static 'IMG/placeholder.jpg' %}");
+        background-size: cover;
+        position: relative;
+    }
+
+    /* Capa para oscurecer el fondo */
+    body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        /* Oscurece el fondo */
+        z-index: 1;
+    }
+
+    /* Capa para aplicar el desenfoque */
+    body::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        backdrop-filter: blur(5px);
+        /* Aplica el desenfoque */
+        z-index: 2;
+    }
+
+    /* Ajusta el contenedor de tu formulario */
+    .form-container {
+        position: relative;
+        z-index: 3;
+        /* El formulario queda por encima de las capas */
+        max-width: 400px;
+        /* Establecer un ancho máximo */
+        margin: auto;
+        /* Centrar el formulario */
+        padding: 20px;
+        /* Añadir algo de espacio interno */
+        background-color: white;
+        /* Fondo blanco para el formulario */
+        border-radius: 8px;
+        /* Bordes redondeados */
+    }
+
+    .alert {
+        background-color: rgba(255, 252, 241, 0.9);
+        /* Fondo claro para mejor contraste */
+        color: #333;
+        /* Color de texto oscuro */
+        border: 1px solid #ddd;
+        padding: 15px;
+        /* Espacio interno */
+        border-radius: 5px;
+        /* Bordes redondeados */
+        margin-bottom: 20px;
+        /* Separación de otros elementos */
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .alert .close {
+        color: #333;
+        /* Color de la 'X' para cerrar la alerta */
+        font-size: 18px;
+        line-height: 1;
+        float: right;
+        opacity: 0.6;
+        cursor: pointer;
+    }
+
+    .alert .close:hover {
+        opacity: 1;
+    }
+
+    #volverTienda {
+        color: white
+    }
+
+    #volverTienda:hover {
+        color: black
+    }
+</style>
+
+<body>
+    <!-- Incluir la barra de navegación -->
+    {% include 'core/plantillas/navbar.html' %}
+
+
+    <!-- Carga del archivo JavaScript -->
+    <script src="{% static 'js/home.js' %}"></script>
+</body>
+<div class="form-container">
+
+    <form class="register-form" action="" method="POST" enctype="multipart/form-data">
+
+        {% csrf_token %}
+        <h5>Agregar productos</h5>
+        <div class="form-group">
+            <label for="nomProd">Nombre</label>
+            <input type="text" id="nomProd" name="nomProd" required>
+        </div>
+        <div class="form-group">
+            <label for="descripcionProducto">Descripcion</label>
+            <textarea id="descripcionProducto" name="descripcionProducto" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="precioProducto">Precio</label>
+            <input type="number" id="precioProducto" name="precioProducto" required>
+        </div>
+        <div class="form-group">
+            <label for="stockProducto">Stock</label>
+            <input type="number" id="stockProducto" name="stockProducto" required>
+        </div>
+        <!-- Tipo de Producto -->
+        <div class="form-group row">
+            <label for="tipo_producto" class="col-sm-3 col-form-label">Tipo de producto</label>
+            <div class="col-sm-9">
+                <select name="tipo_producto" id="tipo_producto" class="form-control" required onchange="toggleFields()">
+                    <option value="">Seleccionar</option>
+                    {% for m in tipo_producto %}
+                    <option value="{{ m.nombre_tipo }}">{{ m.nombre_tipo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <!-- Campos Adicionales Comunes -->
+        <div class="form-group row">
+            <label for="marca" class="col-sm-3 col-form-label">Marca</label>
+            <div class="col-sm-9">
+                <input type="text" id="marca" name="marca"  class="form-control">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="socket" class="col-sm-3 col-form-label">Socket</label>
+            <div class="col-sm-9">
+                <input type="text" id="socket" name="socket" class="form-control">
+            </div>
+        </div>
+
+        <!-- Campos específicos para Tarjetas de Video -->
+        <div id="video_fields" style="display: none;">
+            <div class="form-group row">
+                <label for="memoria_video" class="col-sm-3 col-form-label">Memoria de Video</label>
+                <div class="col-sm-9">
+                    <input type="text" id="memoria_video" name="memoria_video" class="form-control" value="0">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="tipo_memoria" class="col-sm-3 col-form-label">Tipo de Memoria</label>
+                <div class="col-sm-9">
+                    <input type="text" id="tipo_memoria" name="tipo_memoria" class="form-control" value="Tipo de memoria">
+                </div>
+            </div>
+        </div>
+
+        <!-- Campos específicos para Procesadores -->
+        <div id="procesador_fields" style="display: none;">
+            <div class="form-group row">
+                <label for="frecuencia_base" class="col-sm-3 col-form-label">Frecuencia Base</label>
+                <div class="col-sm-9">
+                    <input type="text" id="frecuencia_base" name="frecuencia_base" class="form-control" value="0">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="frecuencia_boost" class="col-sm-3 col-form-label">Frecuencia Boost</label>
+                <div class="col-sm-9">
+                    <input type="text" id="frecuencia_boost" name="frecuencia_boost" class="form-control" value="0">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="nucleos" class="col-sm-3 col-form-label">Núcleos</label>
+                <div class="col-sm-9">
+                    <input type="number" id="nucleos" name="nucleos" class="form-control"value="0"> 
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="hilos" class="col-sm-3 col-form-label">Hilos</label>
+                <div class="col-sm-9">
+                    <input type="number" id="hilos" name="hilos" class="form-control"value="0">
+                </div>
+            </div>
+        </div>
+        <div class="image-row">
+            <div class="form-group small-form-group">
+                <label for="imagenUno">Foto Producto: </label>
+                <input type="file" name="imagenUno" id="imagenUno" required>
+                {% if producto.imagen_uno %}
+                <img src="{{ producto.imagen_uno.url }}" alt="Imagen Uno" style="width: 100%; border-radius: 10px;" >
+                {% endif %}
+            </div>
+            <div class="form-group small-form-group">
+                <label for="imagenDos">Foto Producto 2:</label>
+                <input type="file" name="imagenDos" id="imagenDos">
+                {% if producto.imagen_dos %}
+                <img src="{{ producto.imagen_dos.url }}" alt="Imagen Dos" style="width: 100%; border-radius: 10px;">
+                {% endif %}
+            </div>
+        </div>
+        <div class="image-row">
+            <div class="form-group small-form-group">
+                <label for="imagenTres">Foto Producto 3:</label>
+                <input type="file" name="imagenTres" id="imagenTres">
+                {% if producto.imagen_tres %}
+                <img src="{{ producto.imagen_tres.url }}" alt="Imagen Tres" style="width: 100%; border-radius: 10px;">
+                {% endif %}
+            </div>
+            <div class="form-group small-form-group">
+                <label for="imagenCuatro">Foto Producto 4:</label>
+                <input type="file" name="imagenCuatro" id="imagenCuatro">
+                {% if producto.imagen_cuatro %}
+                <img src="{{ producto.imagen_cuatro.url }}" alt="Imagen Cuatro"
+                    style="width: 100%; border-radius: 10px;">
+                {% endif %}
+            </div>
+        </div>
+        <button type="submit" class="submit-button login-button">Agregar producto</button>
+        <button type="button" class="submit-button login-button"><a href="{% url 'tienda' %}" id="volverTienda">Volver a la tienda</a></button>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-dismissible alert-success fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
+            <strong class="text-dark">{{ message }}</strong>
+        </div>
+        {% endfor %}
+        {% endif %}
+</div>
+</form>
+<script>
+    function toggleFields() {
+        const tipoProducto = document.getElementById("tipo_producto").value;
+        
+        // Condicional para mostrar campos de tarjetas de video o procesador
+        document.getElementById("video_fields").style.display = tipoProducto === "Graficas" ? "block" : "none";
+        document.getElementById("procesador_fields").style.display = tipoProducto === "Procesador" ? "block" : "none";
+    }
+
+    // Llamada inicial para el tipo ya seleccionado
+    document.addEventListener("DOMContentLoaded", toggleFields);
+</script>
+<!-- Carga del archivo JavaScript -->
+<script src="{% static 'js/home.js' %}"></script>
+
+
+
+</body>
+<!-- Footer -->
+
+</html>
