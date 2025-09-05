@@ -15,8 +15,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 
-{% include 'core/plantillas/dame_head.html' %}
-{% include 'core/plantillas/navbar.html' %}
+{% include 'plantillas/dame_head.html' %}
+{% include 'plantillas/navbar.html' %}
 
 <body>
     <div class="container mt-5 pt-4">
@@ -53,7 +53,7 @@
             <div class="col-md-4 pl-0">
                 <div class="sidebar bg-light p-3 rounded shadow">
                     <div class="user-account mt-4">
-                        <h3><i class="fa-solid fa-user"></i> PC Forge</h3>
+                        <h3><i class="fa-solid fa-user"></i> IncluShop</h3>
                         <div class="account-buttons">
                             <button class="btn btn-outline-secondary w-100 mb-2"><i class="fa-solid fa-file-alt"></i> Reglas de contenido</button>
                             <button class="btn btn-outline-secondary w-100 mb-2"><i class="fa-solid fa-lock"></i> Reglas de privacidad</button>
@@ -62,7 +62,7 @@
 
                     <!-- Sidebar Banner -->
                     <div class="sidebar-banner mt-4 text-center">
-                        <dotlottie-player src="https://lottie.host/090756da-cee3-4e35-9f8a-2343d2777930/uaP49y7FKd.json" 
+                        <dotlottie-player src="https://lottie.host/779cee37-1926-4ea8-93eb-5d726d5af78c/11aUNRXi6N.lottie" 
                                         background="transparent" 
                                         speed="1" 
                                         style="width: 100%; height: 100px;" 
@@ -71,9 +71,7 @@
                         </dotlottie-player>
 
 
-                        <div class="banner-icon">
-                            <i class="fa-solid fa-hammer"></i>
-                        </div>
+
                         <h2>¡Síguenos!</h2>
                         <div class="social-links">
                             <a href="#"><i class="fab fa-facebook-f"></i></a>
@@ -95,7 +93,7 @@
             height: 91vh;
             text-align: center;
             color: white;
-            background: linear-gradient(rgba(0, 0, 0, 1.5), rgba(0, 0, 0, 0.5)), url("https://images3.alphacoders.com/132/1329171.png") center/cover fixed;
+            background: linear-gradient(rgba(0, 0, 0, 1.5), rgba(0, 0, 0, 0.5)), url("https://images.squarespace-cdn.com/content/v1/5fc81a6a2a8c727fea28e86a/1617632758936-0I729579XQL2AQSM30U1/AdobeStock_320378863.jpeg") center/cover fixed;
             box-shadow: 0 -20px 30px rgba(0, 0, 0, 0.9), 0 5px 10px rgba(0, 0, 0, 0.3);
             position: relative;
             background-color: #f8f9fa;
@@ -164,7 +162,7 @@
             border-radius: 10px;
             text-align: center;
             background: linear-gradient(rgba(0, 0, 0, 1.5), rgba(0, 0, 0, 0.5)), 
-                        url("https://images3.alphacoders.com/132/1329171.png") center/cover;
+                        url("https://images.squarespace-cdn.com/content/v1/5fc81a6a2a8c727fea28e86a/1617632758936-0I729579XQL2AQSM30U1/AdobeStock_320378863.jpeg") center/cover;
             position: relative;
         }
 
@@ -232,7 +230,7 @@
 
                 $.ajax({
                     type: "POST",
-                    url: "{% url 'chatbot_response' %}", // URL del endpoint en tu servidor
+                    url: "#", // URL del endpoint en tu servidor
                     contentType: "application/json", // Especifica que los datos se enviarán como JSON
                     data: JSON.stringify({ // Convierte el objeto JavaScript a JSON
                         'message': message

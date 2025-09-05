@@ -3,28 +3,28 @@
 {% load static %}
 
 <!-- Incluir la plantilla del head -->
-{% include 'core/plantillas/dame_head.html' %}
+{% include 'plantillas/dame_head.html' %}
 
 <body>
 
     <!-- Incluir la barra de navegación -->
-    {% include 'core/plantillas/navbar.html' %}
+    {% include 'plantillas/navbar.html' %}
     
     <!-- Sección Banner  -->
-    {% include 'core/plantillas/banner.html' %}
+    {% include 'plantillas/banner.html' %}
     
     <!-- Diálogos -->
-    {% include 'core/plantillas/dialogo.html' with images=images %}
+    {% include 'plantillas/dialogo.html' with images=images %}
     
     <!-- Hero Banner Section -->
-    {% include 'core/plantillas/hero_banner.html' %}
+    {% include 'plantillas/hero_banner.html' %}
     <hr class="separator">
     
     <!-- Hero con Google Maps -->
-    {% include 'core/plantillas/hero_conboton.html' %} 
+    {% include 'plantillas/hero_conboton.html' %} 
     <hr class="separator">
     <!-- Slideshow container -->
-    {% include 'core/plantillas/slideshow.html' %}
+    {% include 'plantillas/slideshow.html' %}
     <!-- Hero Banner Section -->
 
 
@@ -34,6 +34,6 @@
 </body>
 
 <!-- Footer -->
-{% include 'core/plantillas/footer.html' %}
+{% include 'plantillas/footer.html' %}
 
 </html>

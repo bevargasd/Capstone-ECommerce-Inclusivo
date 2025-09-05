@@ -2,25 +2,26 @@
 
 <section class="hero-banner">
     <div class="hero-content">
-        <a href="{% url 'tienda' %}"><img src="{% static 'IMG/tienda.jpg' %}" alt="Banner Image {{ i }}" class="banner-img"></a>
+        <a href="#"><img src="{% static 'IMG/tienda.jpg' %}" alt="Banner Image" class="banner-img"></a>
         <div class="banner-caption">
             <h2><i class="fas fa-store"></i> Tienda Online</h2>
             <p>Encuentra los mejores componentes para tus dispositivos.</p>
         </div>
     </div>
+
     {% if not user.is_authenticated %}
     <!-- Nuevo Hero Content añadido en el medio -->
     <div class="hero-content">
-        <a href="{% url 'register' %}"><img src="{% static 'IMG/Cuenta.jpg' %}" alt="Banner Image {{ i }}" class="banner-img"></a>
+        <a href="#"><img src="{% static 'IMG/Cuenta.jpg' %}" alt="Banner Image" class="banner-img"></a>
         <div class="banner-caption">
             <h2><i class="fas fa-user-plus"></i> Crear Cuenta</h2>
-            <p>Unete a nuestra comunidad Increible y explora nuestros productos.</p>
+            <p>Únete a nuestra comunidad increíble y explora nuestros productos.</p>
         </div>
     </div>
     {% endif %}
 
     <div class="hero-content">
-        <a href="{% url 'foro' %}"><img src="{% static 'IMG/foro.jpg' %}" alt="Banner Image {{ i }}" class="banner-img"></a>
+        <a href="#"><img src="{% static 'IMG/foro.jpg' %}" alt="Banner Image" class="banner-img"></a>
         <div class="banner-caption">
             <h2><i class="fas fa-comments"></i> Foro</h2>
             <p>Únete a nuestra comunidad y resuelve tus dudas.</p>

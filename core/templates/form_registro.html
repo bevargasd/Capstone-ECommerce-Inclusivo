@@ -2,7 +2,7 @@
 <html lang="es">
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/registro.css' %}">
-{% include 'core/plantillas/dame_head.html' %}
+{% include 'plantillas/dame_head.html' %}
 
 <head>
     <meta charset="UTF-8">
@@ -44,7 +44,7 @@
     </style>
 </head>
 <body>
-    {% include 'core/plantillas/navbar.html' %}
+    {% include 'plantillas/navbar.html' %}
 
 
 <!-- Carga del archivo JavaScript -->
@@ -60,7 +60,7 @@
         {% endfor %}
     </div>
     {% endif %}
-    <form class="register-form" action="{% url 'registrarse' %}" method="POST" onsubmit="return validateRegisterForm()">
+    <form class="register-form" action="#" method="POST" onsubmit="return validateRegisterForm()">
         {% csrf_token %}
         <h2>Registro de Cuenta</h2>
         <div class="form-group">

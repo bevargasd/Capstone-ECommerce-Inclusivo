@@ -2,15 +2,16 @@
 <!-- Sección Hero -->
 <section class="hero">
     <div class="hero-inner">
-        <!-- Contenedor para la animación Lottie -->
-        <dotlottie-player src="https://lottie.host/090756da-cee3-4e35-9f8a-2343d2777930/uaP49y7FKd.json" 
-                          background="transparent" 
-                          speed="1" 
-                          style="width: 300px; height: 300px;" 
-                          loop 
-                          autoplay>
-        </dotlottie-player>
-        <h1 class="overlay-text">PcForge</h1> <!-- Texto superpuesto -->
+        <!-- Animación Lottie del carrito -->
+        <dotlottie-wc
+          src="https://lottie.host/779cee37-1926-4ea8-93eb-5d726d5af78c/11aUNRXi6N.lottie"
+          style="width: 825px; height: 825px; background: transparent;"
+          speed="1"
+          autoplay
+          loop
+        ></dotlottie-wc>
+
+        <h1 class="overlay-text">IncluShop</h1> <!-- Texto superpuesto -->
         <h2>Compártenos</h2>
         <div class="social-links">
             <a href="#"><i class="fab fa-facebook-f"></i></a>
@@ -32,46 +33,47 @@
         align-items: center;
         text-align: center;
         color: white;
-        background: linear-gradient(rgba(0, 0, 0, 1.5), rgba(0, 0, 0, 0.5)), url("https://images3.alphacoders.com/132/1329171.png") center/cover fixed;
-        box-shadow: 0 -20px 30px rgba(0, 0, 0, 0.9), /* Sombra fuerte arriba */
-                    0 5px 10px rgba(0, 0, 0, 0.3); /* Sombra leve abajo */
+        background: linear-gradient(rgba(0, 0, 0, 1.5), rgba(0, 0, 0, 0.5)), 
+                    url("https://images.squarespace-cdn.com/content/v1/5fc81a6a2a8c727fea28e86a/1617632758936-0I729579XQL2AQSM30U1/AdobeStock_320378863.jpeg") 
+                    center/cover fixed;
+        box-shadow: 0 -20px 30px rgba(0, 0, 0, 0.9),
+                    0 5px 10px rgba(0, 0, 0, 0.3);
         position: relative;
     }
 
     .hero-inner {
-        position: relative; /* Hacer el contenedor relativo para posicionar los elementos hijos */
+        position: relative;
     }
 
-    .overlay-text {
-        position: absolute; /* Posicionar el texto de manera absoluta */
-        top: 50%; /* Centrar verticalmente */
-        left: 50%; /* Centrar horizontalmente */
-        transform: translate(-50%, -50%); /* Ajustar la posición para centrar */
-        font-size: 5em; /* Tamaño del texto */
-        z-index: 10; /* Asegurar que el texto esté por encima de otros elementos */
-        background-color: rgba(0, 0, 0, 0.4); /* Fondo negro más translúcido */
-        padding: 10px 20px; /* Espaciado alrededor del texto */
-        border-radius: 10px; /* Bordes redondeados */
-    }
+.overlay-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5em;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.95); /* Fondo más sólido */
+    padding: 20px 35px; /* Un poco más de espacio */
+    border-radius: 12px; /* Bordes redondeados */
+    border: 2px solid rgba(255, 255, 255, 0.6); /* Borde sutil */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8); /* Sombra para destacar */
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8); /* Sombra del texto */
+}
+
+
 
     .social-links a {
-        color: white; /* Cambia el color de los iconos a blanco */
-        text-decoration: none; /* Elimina el subrayado de los enlaces (opcional) */
-        margin: 0 5px; /* Añade margen entre los iconos */
+        color: white;
+        text-decoration: none;
+        margin: 0 5px;
     }
 
     .social-links a:hover {
-        color: #ff7d7d; /* Cambia el color al pasar el mouse (opcional) */
+        color: #ff7d7d;
     }
 </style>
 
-<script>
-    // Inicializa la animación Lottie
-    var animation = lottie.loadAnimation({
-        container: document.getElementById('lottie-container'), // Contenedor donde se mostrará la animación
-        renderer: 'svg', // Tipo de renderizado
-        loop: true, // Repetir la animación
-        autoplay: true, // Iniciar automáticamente
-        path: '{% static "path/to/flame_animation.json" %}' // Ruta de tu archivo JSON
-    });
-</script>
+<script
+  src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.6.2/dist/dotlottie-wc.js"
+  type="module"
+></script>
