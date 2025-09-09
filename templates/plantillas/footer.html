@@ -1,0 +1,183 @@
+<!-- Footer con Searchbar más larga -->
+<footer class="footer">
+  <div class="footer-container">
+    <!-- Columna 1: Suscripción -->
+    <div class="footer-column subscribe">
+      <h4>SUBSCRIBE TO OUR EMAILS</h4>
+      <div class="subscribe-box">
+        <input type="email" placeholder="Email Address">
+        <button>SIGN UP</button>
+      </div>
+    </div>
+
+    <!-- Columna 2: Help -->
+    <div class="footer-column">
+      <h4>HELP</h4>
+      <ul>
+        <li><a href="#">Live Chat</a></li>
+        <li><a href="#">Call Us</a></li>
+        <li><a href="#">Text Us</a></li>
+        <li><a href="#">FAQ / Contact Us</a></li>
+        <li><a href="#">Returns / Exchanges</a></li>
+      </ul>
+    </div>
+
+    <!-- Columna 3: Shop -->
+    <div class="footer-column">
+      <h4>SHOP</h4>
+      <ul>
+        <li><a href="#">Men's Shoes</a></li>
+        <li><a href="#">Women's Shoes</a></li>
+        <li><a href="#">Men's Apparel</a></li>
+        <li><a href="#">Women's Apparel</a></li>
+        <li><a href="#">Gift Cards</a></li>
+      </ul>
+    </div>
+
+    <!-- Columna 4: Company -->
+    <div class="footer-column">
+      <h4>COMPANY</h4>
+      <ul>
+        <li><a href="#">Our Story</a></li>
+        <li><a href="#">Sustainability</a></li>
+        <li><a href="#">Investors</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Blog</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Redes sociales -->
+  <div class="social-media">
+    <a href="#"><i class="fab fa-instagram"></i></a>
+    <a href="#"><i class="fab fa-facebook"></i></a>
+    <a href="#"><i class="fab fa-pinterest"></i></a>
+    <a href="#"><i class="fab fa-twitter"></i></a>
+    <a href="#"><i class="fab fa-youtube"></i></a>
+  </div>
+
+  <!-- Derechos de autor -->
+  <div class="footer-bottom">
+    <p>© 2025 IncluShop. All Rights Reserved</p>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Refund Policy</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style>
+/* Footer General */
+.footer {
+  background: #111;
+  color: #fff;
+  padding: 40px 20px;
+  font-family: Arial, sans-serif;
+}
+
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto 30px;
+}
+
+.footer-column h4 {
+  font-size: 14px;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+}
+
+.footer-column ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-column ul li a {
+  text-decoration: none;
+  color: #aaa;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 8px;
+  transition: color 0.3s;
+}
+
+.footer-column ul li a:hover {
+  color: #6C63FF; /* Morado de tu carrito */
+}
+
+/* Suscripción */
+.subscribe-box {
+  display: flex;
+  border: 1px solid #444;
+  border-radius: 25px;
+  overflow: hidden;
+  max-width: 400px; /* 🔥 Aumentamos ancho */
+  margin-top: 10px;
+}
+
+.subscribe-box input {
+  padding: 12px;
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.subscribe-box button {
+  background: #6C63FF;
+  color: white;
+  border: none;
+  padding: 12px 25px; /* Botón más grande */
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.subscribe-box button:hover {
+  background: #5a52d1;
+}
+
+/* Redes Sociales */
+.social-media {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.social-media a {
+  color: #fff;
+  margin: 0 10px;
+  font-size: 20px;
+  transition: color 0.3s;
+}
+
+.social-media a:hover {
+  color: #6C63FF;
+}
+
+/* Parte inferior */
+.footer-bottom {
+  text-align: center;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.footer-bottom .footer-links {
+  margin-top: 10px;
+}
+
+.footer-bottom .footer-links a {
+  margin: 0 10px;
+  color: #aaa;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-bottom .footer-links a:hover {
+  color: #6C63FF;
+}
+</style>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+{% load static %}
+
+<!-- Incluir la plantilla del head -->
+{% include 'plantillas/dame_head.html' %}
+
+<body>
+
+    <!-- Incluir la barra de navegación -->
+    {% include 'plantillas/navbar.html' %}
+    
+    <!-- Sección Banner  -->
+    {% include 'plantillas/banner.html' %}
+    
+    <!-- Diálogos -->
+    {% include 'plantillas/dialogo.html' with images=images %}
+    
+    <!-- Hero Banner Section -->
+    {% include 'plantillas/hero_banner.html' %}
+    <hr class="separator">
+    
+    <!-- Hero con Google Maps -->
+    {% include 'plantillas/hero_conboton.html' %} 
+    <hr class="separator">
+    <!-- Slideshow container -->
+    {% include 'plantillas/slideshow.html' %}
+    <!-- Hero Banner Section -->
+
+
+    <!-- Carga del archivo JavaScript -->
+    <script src="{% static 'js/home.js' %}"></script>
+
+</body>
+
+<!-- Footer -->
+{% include 'plantillas/footer.html' %}
+
+</html>

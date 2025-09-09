@@ -1,0 +1,79 @@
+{% load static %}
+<!-- Sección Hero -->
+<section class="hero">
+    <div class="hero-inner">
+        <!-- Animación Lottie del carrito -->
+        <dotlottie-wc
+          src="https://lottie.host/779cee37-1926-4ea8-93eb-5d726d5af78c/11aUNRXi6N.lottie"
+          style="width: 825px; height: 825px; background: transparent;"
+          speed="1"
+          autoplay
+          loop
+        ></dotlottie-wc>
+
+        <h1 class="overlay-text">IncluShop</h1> <!-- Texto superpuesto -->
+        <h2>Compártenos</h2>
+        <div class="social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-whatsapp"></i></a>
+            <a href="#"><i class="fab fa-pinterest"></i></a>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Sección Hero */
+    .hero {
+        width: 100%;
+        height: 91vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: white;
+        background: linear-gradient(rgba(0, 0, 0, 1.5), rgba(0, 0, 0, 0.5)), 
+                    url("https://images.squarespace-cdn.com/content/v1/5fc81a6a2a8c727fea28e86a/1617632758936-0I729579XQL2AQSM30U1/AdobeStock_320378863.jpeg") 
+                    center/cover fixed;
+        box-shadow: 0 -20px 30px rgba(0, 0, 0, 0.9),
+                    0 5px 10px rgba(0, 0, 0, 0.3);
+        position: relative;
+    }
+
+    .hero-inner {
+        position: relative;
+    }
+
+.overlay-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5em;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.95); /* Fondo más sólido */
+    padding: 20px 35px; /* Un poco más de espacio */
+    border-radius: 12px; /* Bordes redondeados */
+    border: 2px solid rgba(255, 255, 255, 0.6); /* Borde sutil */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8); /* Sombra para destacar */
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8); /* Sombra del texto */
+}
+
+
+
+    .social-links a {
+        color: white;
+        text-decoration: none;
+        margin: 0 5px;
+    }
+
+    .social-links a:hover {
+        color: #ff7d7d;
+    }
+</style>
+
+<script
+  src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.6.2/dist/dotlottie-wc.js"
+  type="module"
+></script>
