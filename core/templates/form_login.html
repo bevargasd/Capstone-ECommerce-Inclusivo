@@ -1,102 +1,194 @@
 <!DOCTYPE html>
 <html lang="es">
-<!-- dame_head.html -->
-<!-- Incluir la plantilla del head -->
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/registro.css' %}">
 
+<!-- Head -->
 {% include 'plantillas/dame_head.html' %}
-
-<head></head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inicio de Sesión</title>
+
 <style>
-    /* Asegúrate de ajustar la ruta de la imagen según su ubicación */
-    body {
-        margin: 0;
-        padding: 0;
-        height: 100vh;
-        background-image: url("{% static 'IMG/placeholder.jpg' %}");
-        background-size: cover;
-        position: relative;
-    }
+/* Fondo con overlay + blur */
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-image: url("{% static 'IMG/placeholder.jpg' %}");
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-    /* Capa para oscurecer el fondo */
-    body::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5); /* Oscurece el fondo */
-        z-index: 1;
-    }
+body::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+}
 
-    /* Capa para aplicar el desenfoque */
-    body::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        backdrop-filter: blur(5px); /* Aplica el desenfoque */
-        z-index: 2;
-    }
+body::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    backdrop-filter: blur(8px);
+    z-index: 2;
+}
 
-    /* Ajusta el contenedor de tu formulario */
+/* Contenedor del formulario */
+.form-container {
+    position: relative;
+    z-index: 3;
+    max-width: 400px;
+    margin: 100px auto 30px auto; /* 👈 separación de navbar */
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.form-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    color: #333;
+}
+
+/* Inputs */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 6px rgba(74, 144, 226, 0.5);
+}
+
+/* Botón de login */
+.submit-button {
+    width: 100%;
+    padding: 12px;
+    background: #4a90e2;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.submit-button:hover {
+    background: #357abd;
+    transform: translateY(-2px);
+}
+
+.submit-button:active {
+    transform: translateY(0);
+}
+
+/* Enlaces */
+.form-container a {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #4a90e2;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.form-container a:hover {
+    text-decoration: underline;
+}
+
+/* Alertas */
+.alert {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+}
+
+.alert.error { background: #ffe5e5; color: #c0392b; }
+.alert.success { background: #e5ffe5; color: #27ae60; }
+
+/* Responsive */
+@media screen and (max-width: 480px) {
     .form-container {
-        position: relative;
-        z-index: 3; /* El formulario queda por encima de las capas */
-        max-width: 400px; /* Establecer un ancho máximo */
-        margin: auto; /* Centrar el formulario */
-        padding: 20px; /* Añadir algo de espacio interno */
-        background-color: white; /* Fondo blanco para el formulario */
-        border-radius: 8px; /* Bordes redondeados */
+        width: 90%;
+        margin: 80px auto 20px auto;
+        padding: 20px;
     }
 
-    .alert {
-        color: red; /* Puedes cambiar el color según tu diseño */
-        margin-bottom: 15px; /* Espaciado entre el mensaje y el formulario */
+    .form-container h2 {
+        font-size: 1.5rem;
     }
+}
 </style>
+
 <body>
-    <!-- Incluir la barra de navegación -->
+    <!-- Navbar -->
     {% include 'plantillas/navbar.html' %}
 
+    <!-- Formulario -->
+    <div class="form-container">
+        <form class="register-form" action="#" method="POST" onsubmit="return validateLoginForm()">
+            {% csrf_token %}
+            <h2>Inicio de sesión</h2>
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" name="email" placeholder="Introduce tu correo electrónico" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Introduce tu contraseña" required>
+            </div>
+            <button type="submit" class="submit-button login-button">Iniciar sesión</button>
+            <p id="error-message" style="color:red;"></p>
+            <a href="#">Restablecer mi contraseña</a>
+        </form>
 
-<!-- Carga del archivo JavaScript -->
-<script src="{% static 'js/home.js' %}"></script>
-<script src="{% static 'js/vali_login.js' %}"></script>
-</body>
-<div class="form-container">
-    <form class="register-form" action="#" method="POST" onsubmit="return validateLoginForm()">
-        {% csrf_token %}
-        <h2>Inicio de sesión</h2>
-        <div class="form-group">
-            <label for="email">Correo Electrónico</label>
-            <input type="email" id="email" name="email" placeholder="Introduce tu correo electrónico" required>
+        {% if messages %}
+        <div id="messages">
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
         </div>
-        <div class="form-group">
-            <label for="password">Contraseña</label>
-            <input type="password" id="password" name="password" placeholder="Introduce tu contraseña" required>
-        </div>
-        <button type="submit" class="submit-button login-button">Iniciar sesión</button>
-        <p id="error-message" style="color:red;"></p>
-        <p><a href="#">Restablecer mi contraseña</a></p> 
-    </form>
-    {% if messages %}
-    <div class='alert.error' id="messages">
-        {% for message in messages %}
-            <div class="alert {{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-</div>
+        {% endif %}
+    </div>
 
-    <!-- Carga del archivo JavaScript -->
+    <!-- Scripts -->
     <script src="{% static 'js/home.js' %}"></script>
+    <script src="{% static 'js/vali_login.js' %}"></script>
 </body>
-<!-- Footer -->
 </html>

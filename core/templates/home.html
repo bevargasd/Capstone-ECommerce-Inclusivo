@@ -15,13 +15,17 @@
     
     <!-- Diálogos -->
     {% include 'plantillas/dialogo.html' with images=images %}
-    
-    <!-- Hero Banner Section -->
-    {% include 'plantillas/hero_banner.html' %}
     <hr class="separator">
-    
+    {% include 'plantillas/product_slider.html' %}
+    <hr class="separator">
+    {% include 'plantillas/product_slider.html' %}
+    <hr class="separator">
+
     <!-- Hero con Google Maps -->
     {% include 'plantillas/hero_conboton.html' %} 
+    <hr class="separator">
+    <!-- Hero Banner Section -->
+    {% include 'plantillas/hero_banner.html' %}
     <hr class="separator">
     <!-- Slideshow container -->
     {% include 'plantillas/slideshow.html' %}
@@ -30,6 +34,171 @@
 
     <!-- Carga del archivo JavaScript -->
     <script src="{% static 'js/home.js' %}"></script>
+    <script src="{% static 'js/product_slider.js' %}"></script>
+<!-- Asistente inclusivo -->
+<div id="chat-widget">
+  <!-- Botón flotante -->
+  <button id="chat-toggle">
+    💬
+  </button>
+
+  <!-- Ventana del chat (abierta por defecto) -->
+  <div id="chat-box" style="display:flex;">
+    <div class="chat-header">
+      <span>🤝 Asistente Inclusivo</span>
+      <button id="chat-close">&times;</button>
+    </div>
+    <div class="chat-body">
+      <p><strong>¡Hola!</strong> Soy tu asistente virtual inclusivo 🌍✨</p>
+      <p>Estoy aquí para apoyarte de la manera que más te acomode:</p>
+      <ul style="padding-left:20px; font-size:0.9rem;">
+        <li>✔ Lenguaje claro y respetuoso</li>
+        <li>✔ Opciones accesibles para distintas necesidades</li>
+        <li>✔ Información en formatos alternativos (ej: texto simplificado)</li>
+      </ul>
+      <p>Selecciona una opción o cuéntame qué necesitas:</p>
+      <div class="chat-options">
+        <button>📘 Guías accesibles</button>
+        <button>🗣 Lectura en voz</button>
+        <button>💬 Lenguaje claro</button>
+        <button>📄 Documentos fáciles</button>
+      </div>
+    </div>
+    <div class="chat-footer">
+      <input type="text" placeholder="Escribe tu mensaje...">
+      <button>➤</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Contenedor principal */
+  #chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+  }
+
+  /* Botón flotante */
+  #chat-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background: #4a90e2;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: background 0.3s ease;
+  }
+  #chat-toggle:hover { background: #357abd; }
+
+  /* Ventana del chat */
+  #chat-box {
+    width: 320px;
+    height: 420px;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    margin-bottom: 10px;
+  }
+
+  .chat-header {
+    background: #4a90e2;
+    color: #fff;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+  }
+  .chat-header button {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .chat-body {
+    flex: 1;
+    padding: 12px;
+    font-size: 0.9rem;
+    color: #333;
+    overflow-y: auto;
+  }
+
+  .chat-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .chat-options button {
+    padding: 6px;
+    border: none;
+    border-radius: 6px;
+    background: #f4f6f9;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+  }
+  .chat-options button:hover {
+    background: #e1e8f0;
+  }
+
+  .chat-footer {
+    display: flex;
+    border-top: 1px solid #ddd;
+  }
+  .chat-footer input {
+    flex: 1;
+    border: none;
+    padding: 10px;
+    font-size: 0.9rem;
+    outline: none;
+  }
+  .chat-footer button {
+    border: none;
+    background: #4a90e2;
+    color: #fff;
+    padding: 0 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .chat-footer button:hover { background: #357abd; }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    #chat-box {
+      width: 95vw;
+      height: 70vh;
+      right: 10px;
+      bottom: 80px;
+    }
+  }
+</style>
+
+<script>
+  const toggleBtn = document.getElementById("chat-toggle");
+  const chatBox = document.getElementById("chat-box");
+  const closeBtn = document.getElementById("chat-close");
+
+  // Abierto por defecto
+  chatBox.style.display = "flex";
+
+  toggleBtn.addEventListener("click", () => {
+    chatBox.style.display = chatBox.style.display === "flex" ? "none" : "flex";
+  });
+
+  closeBtn.addEventListener("click", () => {
+    chatBox.style.display = "none";
+  });
+</script>
 
 </body>
 

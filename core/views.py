@@ -31,9 +31,8 @@ def login_view(request):
 def registro(request):
     return render(request, "form_registro.html")
 
-# Perfil
 def perfil(request):
-    return render(request, "perfil.html")
+    return render(request, "plantillas/perfil.html")
 
 # Comparador de productos
 def compara(request):
@@ -42,3 +41,6 @@ def compara(request):
 # Publicaciones
 def publicaciones(request):
     return render(request, "publicacion.html")
+# Agregar productor
+def agregar(request):
+    return render(request, "form_agregar_productos.html")

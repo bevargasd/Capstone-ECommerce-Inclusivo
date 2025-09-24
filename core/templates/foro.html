@@ -1,162 +1,163 @@
 {% load static %}
-<!-- El CSS de esta página depende de "backgrounds.css" -->
 <!DOCTYPE html>
 <html lang="es">
-    <!-- Incluir la plantilla del head -->
-    {% include 'plantillas/dame_head.html' %}
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
-    <link rel="stylesheet" href="{% static 'css/background.css' %}">
 
-    <body>
-    
-        <!-- Incluir la barra de navegación -->
-        {% include 'plantillas/navbar.html' %}
+<!-- Incluir la plantilla del head -->
+{% include 'plantillas/dame_head.html' %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/background.css' %}">
 
-        <!-- Contenedor principal -->
-        <div class="container">
-            <div class="main-content">
-                <!-- Título con icono -->
-                <h1 class="forum-title">
-                    <i class="fas fa-cogs"></i> Discusión de componentes
-                </h1>
+<body>
+    <!-- Navbar -->
+    {% include 'plantillas/navbar.html' %}
 
-                <!-- Incluir múltiples plantillas de publicación -->
-<!-- Incluir múltiples plantillas de publicación -->
-{% for i in posts %}
-    {% include 'core/plantillas/publicacion.html' with post=i %}
-{% endfor %}
+    <!-- Contenedor principal -->
+    <div class="container">
+        <div class="main-content">
+            <!-- Título con icono -->
+            <h1 class="forum-title">
+                <i class="fas fa-cogs"></i> Discusión de componentes
+            </h1>
 
-            </div> <!-- Cierre de main-content -->
+            <!-- Posts -->
+            {% for i in posts %}
+                {% include 'core/plantillas/publicacion.html' with post=i %}
+            {% endfor %}
+        </div>
 
-            <!-- Ventana para posts destacados -->
-            {% include 'plantillas/sidebar.html' %}
-        </div> <!-- Cierre de container -->
+        <!-- Sidebar -->
+        {% include 'plantillas/sidebar.html' %}
+    </div>
 
-        <!-- Cargar archivo JavaScript -->
-        <script src="{% static 'js/home.js' %}"></script>
-
-        <!-- Iconos de Font Awesome -->
-        <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    </body>
+    <!-- Scripts -->
+    <script src="{% static 'js/home.js' %}"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
 </html>
 
 <style>
-    /* Estilos para el fondo con efecto de oscurecido y desenfoque */
-    body {
-        margin: 0;
-        padding: 0;
-        height: 100vh;
-        background-image: url("{% static 'IMG/placeholder.jpg' %}");
-        background-size: cover;
-        background-position: center;
-        position: relative;
-        display: flex;
-        justify-content: center; /* Centra horizontalmente */
-        align-items: center;    /* Centra verticalmente */
-    }
-    
-    /* Capa para oscurecer el fondo */
-    body::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7); /* Oscurece el fondo más */
-        z-index: 1;
-    }
-    
-    /* Capa para aplicar el desenfoque */
-    body::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        backdrop-filter: blur(15px); /* Aplica el desenfoque más fuerte */
-        z-index: 2;
-    }
-    
-    /* Ajusta el contenedor principal */
+/* Fondo con blur y overlay */
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-image: url("{% static 'IMG/placeholder.jpg' %}");
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+}
+
+body::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    backdrop-filter: blur(12px);
+    z-index: 2;
+}
+
+/* Contenedor principal */
+.container {
+    position: relative;
+    z-index: 3;
+    width: 85%;
+    max-width: 1400px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    padding: 30px;
+    min-height: 80vh;
+    margin: 30px auto;
+    display: flex;
+    gap: 20px;
+}
+
+/* Área principal de posts */
+.main-content {
+    flex: 1;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Título del foro */
+.forum-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    position: relative;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.forum-title::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background-color: black;
+    bottom: -5px;
+    left: 0;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.forum-title:hover::after {
+    transform: scaleX(1);
+}
+
+/* Responsive */
+@media screen and (max-width: 992px) {
     .container {
-        position: relative;
-        z-index: 3; /* Eleva el contenedor por encima del fondo */
-        width: 80%; /* Aumenta el ancho del contenedor */
-        max-width: 2000px; /* Ajusta el ancho máximo */
-        background-color: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3); /* Sombra más fuerte */
-        padding: 40px;
-        min-height: 80vh;
-        margin: auto;
-        display: flex;
-        flex-wrap: wrap; /* Para que los posts y la sidebar estén uno al lado del otro */
-        overflow: hidden; /* Evita el desbordamiento */
+        flex-direction: column;
+        width: 95%;
+        padding: 20px;
     }
-    
-    /* Ajustar el contenido principal para el desplazamiento */
+
     .main-content {
-        max-height: 70vh; /* Altura fija para el desplazamiento */
-        overflow-y: auto; /* Permite el desplazamiento vertical */
-        flex-grow: 1; /* Permite que el contenido principal ocupe el espacio disponible */
+        max-height: unset;
+        overflow-y: visible;
     }
+}
 
-    /* Contenedor para el título del foro con subrayado */
+@media screen and (max-width: 576px) {
     .forum-title {
-        font-size: 2.5rem; /* Hacerlo más grande */
-        font-weight: bold;
-        color: #333; /* Color oscuro */
-        position: relative;
-        display: inline-block; /* Para que el subrayado solo ocupe el texto */
-        margin-bottom: 20px; /* Espacio debajo del título */
-    }
-    
-    /* Efecto de subrayado con animación */
-    .forum-title::after {
-        content: ''; /* Genera un pseudo-elemento */
-        position: absolute;
-        width: 100%;
-        height: 4px; /* Ancho del subrayado */
-        background-color: black; /* Color del subrayado */
-        bottom: -5px; /* Ubicación del subrayado debajo del texto */
-        left: 0;
-        transform: scaleX(0); /* Inicialmente no visible */
-        transition: transform 0.3s ease; /* Animación al pasar el cursor */
-    }
-    
-    /* Al pasar el mouse por encima, el subrayado se expande */
-    .forum-title:hover::after {
-        transform: scaleX(1); /* Hace visible el subrayado */
-    }
-    
-    /* Estilo para el separador entre el título y los posts */
-    .separator {
-        margin: 20px 0; /* Espaciado superior e inferior */
-        border: none; /* Eliminar borde predeterminado */
-        border-top: 2px solid black; /* Línea para el separador */
-        width: 103%; /* Ancho del separador */
-        margin-left: auto;
-        margin-right: auto; /* Centrado */
+        font-size: 1.5rem;
+        text-align: center;
     }
 
-    @media screen and (max-width: 768px) {
-        .container {
-            width: 90%; /* Cambia el ancho a 90% en pantallas pequeñas */
-            padding: 20px;
-        }
-        
-        .post {
-            flex-direction: column; /* Para que los elementos se apilen verticalmente */
-        }
-        
-        .post h2 {
-            font-size: 1.5rem;
-        }
-        
-        .post p {
-            font-size: 0.8rem;
-        }
+    .post h2 {
+        font-size: 1.2rem;
     }
+
+    .post p {
+        font-size: 0.85rem;
+    }
+}
+.container {
+    position: relative;
+    z-index: 3;
+    width: 85%;
+    max-width: 1400px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    padding: 30px;
+    min-height: 80vh;
+    margin: 100px auto 30px auto; /* 👈 separación arriba */
+    display: flex;
+    gap: 20px;
+}
+
 </style>

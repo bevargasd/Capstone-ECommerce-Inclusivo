@@ -12,4 +12,5 @@ urlpatterns = [
     path("perfil/", views.perfil, name="perfil"),
     path("compara/", views.compara, name="compara"),
     path("publicaciones/", views.publicaciones, name="publicaciones"),
+    path("agregar/", views.agregar, name="agregar"),
 ]

@@ -1,113 +1,60 @@
-<!-- navbar.html -->
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap JS (para menú hamburguesa) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- FontAwesome (íconos) -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <div class="container-fluid">
+    
+    <!-- Marca / Hogar -->
+    <a class="navbar-brand" href="{% url 'home.html' %}">
+      <i class="fas fa-home"></i> Hogar
+    </a>
 
-<ul class="navbar">
-    <div class="left-nav">
-        <li><a href="{% url 'home.html' %}" class="active home-button"><i class="fas fa-home"></i> Hogar</a></li>
-        <li><a href="{% url 'carrito' %}"><i class="fa-solid fa-cart-shopping"></i> Carrito</a></li>
-        <li><a href="{% url 'chat' %}"><i class="fas fa-comments"></i> Asistente</a></li>
-        <li><a href="{% url 'tienda' %}"><i class="fas fa-box"></i> Tienda</a></li>
-        <li><a href="{% url 'foro' %}"><i class="fas fa-comments"></i> Foro</a></li>
-        <li><a href="#"><i class="fas fa-plus"></i> Agregar Producto</a></li>
+    <!-- Botón hamburguesa -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+      aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Links -->
+    <div class="collapse navbar-collapse" id="mainNavbar">
+      <!-- Izquierda -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'carrito' %}"><i class="fa-solid fa-cart-shopping"></i> Carrito</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'chat' %}"><i class="fas fa-comments"></i> Asistente</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'tienda' %}"><i class="fas fa-box"></i> Tienda</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'foro' %}"><i class="fas fa-comments"></i> Foro</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'agregar' %}"><i class="fas fa-plus"></i> Agregar Producto</a>
+        </li>
+      </ul>
+
+      <!-- Barra de búsqueda -->
+      <form class="d-flex me-3" role="search">
+        <input class="form-control me-2" type="search" placeholder="Buscar productos..." aria-label="Buscar">
+        <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
+      </form>
+
+      <!-- Derecha -->
+      <ul class="navbar-nav mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'perfil' %}"><i class="fas fa-user"></i> Usuario</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'registro' %}"><i class="fas fa-user-plus"></i> Crear Cuenta</a></li>
+      </ul>
     </div>
-
-    <!-- Barra de búsqueda -->
-    <div class="search-bar">
-        <input type="text" placeholder="Buscar productos...">
-        <button><i class="fas fa-search"></i></button>
-    </div>
-
-    <div class="right-nav">
-        <li class="nav-right"><a href="#"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
-        <li class="nav-right"><a href="#"><i class="fas fa-user"></i> Usuario</a></li>
-        <li class="nav-right"><a href="login"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a></li>
-        <li class="nav-right"><a href="registro"><i class="fas fa-user-plus"></i> Crear Cuenta</a></li>
-    </div>
-</ul>
-
-<!-- css -->
-<style>
-/* Estilos de la barra de navegación */
-.navbar {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: black;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    z-index: 1000;
-    min-height: 70px;
-    display: flex; /* Para alinear fácilmente */
-    align-items: center;
-    justify-content: space-between;
-}
-
-/* Ajuste de contenedores */
-.left-nav, .right-nav {
-    display: flex;
-    align-items: center;
-}
-
-.navbar li {
-    float: left;
-}
-
-.navbar li a {
-    display: block;
-    color: white;
-    text-align: center;
-    padding: 20px 24px;
-    text-decoration: none;
-    font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    border-radius: 8px;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.navbar li a:hover, .active {
-    background-color: #111;
-}
-
-.home-button:hover {
-    background-color: #444;
-    color: #6C63FF;
-}
-
-/* Barra de búsqueda */
-.search-bar {
-    display: flex;
-    align-items: center;
-    margin: 0 20px;
-}
-
-.search-bar input {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 25px 0 0 25px;
-    outline: none;
-    font-size: 1em;
-    width: 400px; /* 🔥 Más ancha */
-    background: white;
-}
-
-.search-bar button {
-    background: #6C63FF; /* 🔥 Morado igual al carrito */
-    border: none;
-    padding: 10px 15px;
-    border-radius: 0 25px 25px 0;
-    cursor: pointer;
-    color: white;
-    font-size: 1em;
-    transition: background 0.3s;
-}
-
-.search-bar button:hover {
-    background: #5a52d1; /* Un morado más oscuro en hover */
-}
-</style>
+  </div>
+</nav>

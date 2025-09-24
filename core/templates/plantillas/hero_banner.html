@@ -1,104 +1,94 @@
-{% load static %} <!-- Add this line at the top -->
+{% load static %}
 
-<section class="hero-banner">
-    <div class="hero-content">
-        <a href="#"><img src="{% static 'IMG/tienda.jpg' %}" alt="Banner Image" class="banner-img"></a>
-        <div class="banner-caption">
-            <h2><i class="fas fa-store"></i> Tienda Online</h2>
-            <p>Encuentra los mejores componentes para tus dispositivos.</p>
-        </div>
-    </div>
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row g-4">
 
-    {% if not user.is_authenticated %}
-    <!-- Nuevo Hero Content añadido en el medio -->
-    <div class="hero-content">
-        <a href="#"><img src="{% static 'IMG/Cuenta.jpg' %}" alt="Banner Image" class="banner-img"></a>
-        <div class="banner-caption">
-            <h2><i class="fas fa-user-plus"></i> Crear Cuenta</h2>
-            <p>Únete a nuestra comunidad increíble y explora nuestros productos.</p>
+      <!-- Banner Tienda -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="banner-card position-relative">
+          <a href="#">
+            <img src="{% static 'IMG/tienda.jpg' %}" alt="Tienda" class="img-fluid rounded banner-img">
+            <div class="banner-caption">
+              <h2><i class="fas fa-store"></i> Tienda Online</h2>
+              <p>Encuentra los mejores componentes para tus dispositivos.</p>
+            </div>
+          </a>
         </div>
-    </div>
-    {% endif %}
+      </div>
 
-    <div class="hero-content">
-        <a href="#"><img src="{% static 'IMG/foro.jpg' %}" alt="Banner Image" class="banner-img"></a>
-        <div class="banner-caption">
-            <h2><i class="fas fa-comments"></i> Foro</h2>
-            <p>Únete a nuestra comunidad y resuelve tus dudas.</p>
+      {% if not user.is_authenticated %}
+      <!-- Banner Crear Cuenta -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="banner-card position-relative">
+          <a href="#">
+            <img src="{% static 'IMG/Cuenta.jpg' %}" alt="Cuenta" class="img-fluid rounded banner-img">
+            <div class="banner-caption">
+              <h2><i class="fas fa-user-plus"></i> Crear Cuenta</h2>
+              <p>Únete a nuestra comunidad increíble y explora nuestros productos.</p>
+            </div>
+          </a>
         </div>
+      </div>
+      {% endif %}
+
+      <!-- Banner Foro -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="banner-card position-relative">
+          <a href="#">
+            <img src="{% static 'IMG/foro.jpg' %}" alt="Foro" class="img-fluid rounded banner-img">
+            <div class="banner-caption">
+              <h2><i class="fas fa-comments"></i> Foro</h2>
+              <p>Únete a nuestra comunidad y resuelve tus dudas.</p>
+            </div>
+          </a>
+        </div>
+      </div>
+
     </div>
+  </div>
 </section>
 
 <style>
-/* Hero Banner */
-.hero-banner {
-    text-align: center;
-    background-color: #f4f4f4;
-    padding: 0;
-    height: 60vh; /* Ajustada para darle más prominencia al banner */
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    gap: 15px;
-    overflow: hidden;
-}
-
-.hero-content {
-    position: relative;
-    width: 30%; /* Cambiado para hacer espacio al tercer hero content */
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Asegura que las imágenes sean del mismo tamaño */
+/* Banner Img con efectos */
 .banner-img {
-    width: 100%;
-    height: 100%;
-    height: 400px; /* Fija una altura máxima para asegurar que las imágenes no crezcan indefinidamente */
-    width: 800px; /* Fija una altura máxima para asegurar que las imágenes no crezcan indefinidamente */
-    border-radius: 15px;
-    object-fit: cover; /* Hace que las imágenes mantengan su proporción al ajustarse al contenedor */
-    filter: brightness(50%) blur(2px); /* Aplica el oscurecimiento y el efecto de desenfoque */
-    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+  width: 100%;
+  height: 250px; /* 🔹 Altura adaptable */
+  object-fit: cover;
+  filter: brightness(50%) blur(2px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
 }
 
-.banner-img:hover {
-    transform: scale(1.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    filter: brightness(75%) blur(0); /* Reduce el desenfoque y aumenta la claridad al hacer hover */
+.banner-card:hover .banner-img {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  filter: brightness(75%) blur(0);
 }
 
-/* Centrando la leyenda en la imagen */
+/* Overlay caption */
 .banner-caption {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.6);
-    color: #fff;
-    padding: 15px 20px;
-    border-radius: 8px;
-    text-align: center;
-    font-family: 'Arial', sans-serif;
-    width: 80%; /* Ajusta el ancho de la leyenda */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 15px 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 80%;
 }
 
-/* Elimina la transición de opacidad para que la leyenda siempre sea visible */
 .banner-caption h2 {
-    font-size: 24px;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
+  font-size: 1.25rem;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
 }
 
 .banner-caption p {
-    font-size: 16px;
-    margin: 10px 0 0;
+  font-size: 0.9rem;
+  margin-top: 8px;
 }
 </style>
-
-<!-- Enlace para Font Awesome -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>

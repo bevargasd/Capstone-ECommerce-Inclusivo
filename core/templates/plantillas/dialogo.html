@@ -1,96 +1,57 @@
-<div class="dialog-container-wrapper">
-    <div class="dialog-container">
-        <div class="dialog-header">
-            <i class="fas fa-laptop-code fa-2x"></i>
-            <h2>Tienda online</h2>
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row g-4 text-center">
+      
+      <!-- Tarjeta 1 -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body">
+            <div class="dialog-header mb-3">
+              <i class="fas fa-laptop-code fa-2x"></i>
+              <h2 class="h5 fw-bold mt-2">Tienda online</h2>
+            </div>
+            <p class="text-muted">Encuentra los últimos productos y mejores componentes</p>
+          </div>
         </div>
-        <div class="dialog-body">
-            <p>Encuentra los últimos productos y mejores componentes</p>
+      </div>
+
+      <!-- Tarjeta 2 -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body">
+            <div class="dialog-header mb-3">
+              <i class="fa-solid fa-person fa-2x"></i>
+              <h2 class="h5 fw-bold mt-2">Todos son bienvenidos</h2>
+            </div>
+            <p class="text-muted">En nuestra tienda todos son independientes y autónomos.</p>
+          </div>
         </div>
+      </div>
+
+      <!-- Tarjeta 3 -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm border-0">
+          <div class="card-body">
+            <div class="dialog-header mb-3">
+              <i class="fas fa-microchip fa-2x"></i>
+              <h2 class="h5 fw-bold mt-2">Consejos y comunidad</h2>
+            </div>
+            <p class="text-muted">Explora nuestra selección de piezas y productos.</p>
+          </div>
+        </div>
+      </div>
+
     </div>
-    
-    <div class="dialog-container">
-        <div class="dialog-header">
-            <i class="fa-solid fa-person"></i>
-            <h2>Todos son bienvenidos</h2>
-        </div>
-        <div class="dialog-body">
-            <p>En nuestra tienda todos son independientes y autonomos.</p>
-        </div>
-    </div>
-        <div class="dialog-container">
-        <div class="dialog-header">
-            <i class="fas fa-microchip fa-2x"></i>
-            <h2>Consejos y comunidad</h2>
-        </div>
-        <div class="dialog-body">
-            <p>Explora nuestra selección de piezas y productos.</p>
-        </div>
-    </div>
-</div>
+  </div>
+</section>
 
 <style>
-/* Estilos generales */
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
-}
-
-/* Contenedor de diálogos */
-.dialog-container-wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
-    margin: 30px auto;
-    padding: 0 20px;
-}
-
-/* Estilos de los diálogos */
-.dialog-container {
-    background-color: #fff;
-    border-radius: 15px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    padding: 25px;
-    width: 30%;
-    min-width: 280px;
-    text-align: center;
-    transition: transform 0.3s ease;
-}
-
-.dialog-container:hover {
-    transform: translateY(-10px);
-}
-
-/* Estilos del encabezado */
-.dialog-header {
-    background-color: #f7f7f7;
-    border-radius: 10px 10px 0 0;
-    padding: 20px;
-    font-size: 24px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
 .dialog-header i {
-    color: black;
+  color: #000;
+  transition: color 0.3s;
 }
 
-/* Estilos del cuerpo del diálogo */
-.dialog-body {
-    padding: 20px;
-    font-size: 18px;
-    color: #333;
-}
-
-/* Hover effect para el ícono */
-.dialog-container:hover i {
-    color: #e74c3c;
+.card:hover i {
+  color: #e74c3c; /* hover en icono */
 }
 </style>
-
-<!-- Enlace para Font Awesome -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
