@@ -7,6 +7,7 @@
 
 <!-- FontAwesome (íconos) -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
   <div class="container-fluid">
     
@@ -57,4 +58,182 @@
       </ul>
     </div>
   </div>
+
+  <!-- Voice nav widget -->
+  <div id="voice-widget" class="voice-widget" aria-hidden="false">
+    <div id="voice-status" class="voice-status" aria-live="polite">Asistente de voz listo</div>
+    <button id="voice-toggle" class="voice-toggle" aria-pressed="false" title="Activar voz">
+      🎙️ Hablar
+    </button>
+    <div id="voice-transcript" class="voice-transcript" aria-live="polite" style="display:none;"></div>
+  </div>
 </nav>
+
+<style>
+.voice-widget {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  max-width: 320px;
+}
+.voice-toggle {
+  background:#4a90e2; color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+.voice-status {
+  font-size:0.9rem; color:#fff; background:rgba(0,0,0,0.4); padding:6px 10px; border-radius:8px;
+}
+.voice-transcript {
+  background:#fff; color:#111; padding:8px; border-radius:6px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.08); width:100%;
+}
+.voice-listening { outline: 3px solid #ffd54a; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('voice-toggle');
+  const status = document.getElementById('voice-status');
+  const transcriptBox = document.getElementById('voice-transcript');
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const Synthesis = window.speechSynthesis || null;
+
+  if (!SpeechRecognition) {
+    status.textContent = 'Reconocimiento por voz no soportado en este navegador.';
+    btn.disabled = true;
+    return;
+  }
+
+  const recog = new SpeechRecognition();
+  recog.lang = 'es-ES';
+  recog.interimResults = true;
+  recog.maxAlternatives = 3;
+  recog.continuous = true;
+
+  let listening = false;
+
+  function speak(text) {
+    if (!Synthesis) return;
+    const ut = new SpeechSynthesisUtterance(text);
+    ut.lang = 'es-ES';
+    speechSynthesis.cancel();
+    speechSynthesis.speak(ut);
+  }
+
+  function normalize(s) {
+    return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
+  function handleCommand(text) {
+    const t = normalize(text);
+    transcriptBox.style.display = 'block';
+    transcriptBox.textContent = 'Interpretado: ' + text;
+
+    // Buscar
+    let m;
+    if (m = t.match(/^buscar (.+)/)) {
+      const query = m[1].trim();
+      speak('Buscando ' + query);
+      const input = document.querySelector('input[type="search"]');
+      if (input) {
+        input.value = query;
+        const form = input.closest('form');
+        if (form) form.submit();
+      }
+      return;
+    }
+
+    // Navegación en navbar
+    if (/(ir a |abrir |entrar )(tienda|carrito|foro|perfil|inicio|hogar|asistente|chat)/.test(t)) {
+      let selector = null;
+
+      if (t.includes('tienda')) selector = 'a.nav-link[href*="tienda"]';
+      if (t.includes('carrito')) selector = 'a.nav-link[href*="carrito"]';
+      if (t.includes('foro')) selector = 'a.nav-link[href*="foro"]';
+      if (t.includes('perfil') || t.includes('usuario')) selector = 'a.nav-link[href*="perfil"]';
+      if (t.includes('asistente') || t.includes('chat')) selector = 'a.nav-link[href*="chat"]';
+      if (t.includes('inicio') || t.includes('hogar') || t.includes('home')) selector = '.navbar-brand';
+
+      if (selector) {
+        const link = document.querySelector(selector);
+        if (link) {
+          speak('Abriendo ' + link.textContent.trim());
+          link.click();
+          return;
+        }
+      }
+    }
+
+    // Scroll
+    if (t.includes('bajar') || t.includes('abajo')) {
+      window.scrollBy({ top: window.innerHeight * 0.7, behavior: 'smooth' });
+      speak('Bajo la página');
+      return;
+    }
+    if (t.includes('subir') || t.includes('arriba')) {
+      window.scrollBy({ top: -window.innerHeight * 0.7, behavior: 'smooth' });
+      speak('Subo la página');
+      return;
+    }
+
+    // Leer
+    if (t.includes('leer')) {
+      const text = document.querySelector('main')?.innerText || document.body.innerText;
+      const snippet = text.split('\n').slice(0, 5).join(' ');
+      speak('Te leo: ' + snippet);
+      return;
+    }
+
+    speak('Lo siento, no entendí. Intenta decir "ir a tienda" o "buscar producto".');
+  }
+
+  recog.onstart = () => {
+    listening = true;
+    status.textContent = '🎙️ Escuchando...';
+    btn.classList.add('voice-listening');
+  };
+
+  recog.onend = () => {
+    if (listening) {
+      try { recog.start(); } catch (err) { console.warn(err); }
+    } else {
+      status.textContent = 'Micrófono apagado';
+      btn.classList.remove('voice-listening');
+    }
+  };
+
+  recog.onerror = (e) => {
+    console.error('Speech error', e);
+    status.textContent = 'Error de voz: ' + (e.error || 'unknown');
+    recog.stop();
+  };
+
+  recog.onresult = (evt) => {
+    let finalTranscript = '';
+    for (let i = evt.resultIndex; i < evt.results.length; ++i) {
+      if (evt.results[i].isFinal) {
+        finalTranscript += evt.results[i][0].transcript;
+      }
+    }
+    if (finalTranscript) handleCommand(finalTranscript);
+  };
+
+  btn.addEventListener("click", () => {
+    if (listening) {
+      recog.stop();
+      listening = false;
+    } else {
+      try { recog.start(); } catch (err) { console.warn(err); }
+      listening = true;
+    }
+  });
+
+  status.textContent = 'Haz click en el micrófono para hablar';
+});
+</script>
