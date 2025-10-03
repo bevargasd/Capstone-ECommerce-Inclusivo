@@ -10,7 +10,7 @@ CREATE TABLE usuarios (
     fecha_nacimiento DATE,
     fecha_registro   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     acepta_marketing BOOLEAN DEFAULT FALSE,
-    rol              ENUM('cliente','vendedor') DEFAULT 'cliente'
+    rol              ENUM('cliente','vendedor', 'admin') DEFAULT 'cliente'
 );
 
 -- ==========================
