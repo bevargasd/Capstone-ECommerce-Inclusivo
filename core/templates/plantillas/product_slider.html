@@ -1,8 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tienda</title>
+<style>
+/* Slider */
+.custom-carousel {
+  --bg: #eaf3f9;
+  --card-bg: #ffffff;
+  --gap: 28px;
+  --card-width: 340px;
+  width: 92%;
+  max-width: 1240px;
+  margin: 0 auto;
+  position: relative;
+  padding: 28px 40px;
+  background: var(--bg);
+  border-radius: 10px;
+}
+
+/* Botones de navegación */
+.custom-carousel .nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(12, 35, 70, 0.12);
+  background: linear-gradient(180deg, #f8fbff, #e9f3ff);
+  z-index: 30;
+}
+.custom-carousel .nav.prev { left: 6px; }
+.custom-carousel .nav.next { right: 6px; }
+.custom-carousel .nav svg { width: 22px; height: 22px; fill: #0b66d1 }
+
+/* Vista y track */
+.custom-carousel .viewport { overflow: hidden; }
+.custom-carousel .track {
+  display: flex;
+  gap: var(--gap);
+  align-items: start;
+  transition: transform 520ms cubic-bezier(.2,.9,.3,1);
+}
+
+/* Tarjeta */
+.custom-carousel .card {
+  width: var(--card-width);
+  min-width: var(--card-width);
+  background: var(--card-bg);
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(12,35,70,0.06);
+  display: flex;
+  flex-direction: column;
+  border: 12px solid rgba(255,255,255,0.95);
+  position: relative;
+}
+.custom-carousel .product-img {
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 132px;
+}
+.bg-blue{ background:#bfe8ff; }
+.bg-pink{ background:#ffdbe6; }
+.bg-mint{ background:#dff8e6; }
+.bg-sky{ background:#cfe8ff; }
+
+.custom-carousel .card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.custom-carousel .title { font-size: 22px; margin: 0; }
+.custom-carousel .desc { font-size: 14px; color: #6b7280; margin: 0; }
+
+/* Botón <a> */
+.custom-carousel .btn {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1000;
+  display: inline-block;
+  padding: 12px 20px;
+  background: #1e5ed6;
+  color: white;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-align: center;
+}
+
+/* 🔧 FIX PRINCIPAL: aseguramos que los clics lleguen al botón */
+.custom-carousel .track {
+  pointer-events: none; /* evita que el track intercepte clics */
+}
+
+.custom-carousel .card,
+.custom-carousel .card * {
+  pointer-events: auto; /* reactiva los clics dentro de la tarjeta */
+}
+
+.custom-carousel .viewport {
+  touch-action: pan-y; /* previene conflictos en móviles */
+}
+</style>
+</head>
+<body>
+
 <div class="custom-carousel" aria-label="Carrusel de productos">
+  <!-- Botón anterior -->
   <button class="nav prev" aria-label="Anterior">
     <svg viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
   </button>
 
+  <!-- Vista del carrusel -->
   <div class="viewport">
     <ul class="track" id="track" role="list">
       <!-- Tarjeta 1 -->
@@ -11,7 +132,7 @@
         <div class="card-body">
           <h3 class="title">Product Three</h3>
           <p class="desc">Description goes here</p>
-          <div class="actions"><button class="btn">Purchase now</button></div>
+          <div class="actions"><a href="{% url 'producto' %}" class="btn">Purchase now</a></div>
         </div>
       </li>
 
@@ -21,7 +142,7 @@
         <div class="card-body">
           <h3 class="title">Product One</h3>
           <p class="desc">⚡ New carrot that is the best in the world!</p>
-          <div class="actions"><button class="btn">Purchase now</button></div>
+          <div class="actions"><a href="{% url 'producto' %}" class="btn">Purchase now</a></div>
         </div>
       </li>
 
@@ -31,7 +152,7 @@
         <div class="card-body">
           <h3 class="title">Product Two</h3>
           <p class="desc">Description goes here</p>
-          <div class="actions"><button class="btn">Purchase now</button></div>
+          <div class="actions"><a href="{% url 'producto' %}" class="btn">Purchase now</a></div>
         </div>
       </li>
 
@@ -41,7 +162,7 @@
         <div class="card-body">
           <h3 class="title">Product Four</h3>
           <p class="desc">Limited edition — looks great on any shelf.</p>
-          <div class="actions"><button class="btn">Purchase now</button></div>
+          <div class="actions"><a href="{% url 'producto' %}" class="btn">Purchase now</a></div>
         </div>
       </li>
 
@@ -51,100 +172,72 @@
         <div class="card-body">
           <h3 class="title">Product Five</h3>
           <p class="desc">Description goes here</p>
-          <div class="actions"><button class="btn">Purchase now</button></div>
+          <div class="actions"><a href="{% url 'producto' %}" class="btn">Purchase now</a></div>
         </div>
       </li>
     </ul>
   </div>
 
+  <!-- Botón siguiente -->
   <button class="nav next" aria-label="Siguiente">
     <svg viewBox="0 0 24 24"><path d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
   </button>
 </div>
-<style>.custom-carousel {
-  --bg: #eaf3f9;
-  --card-bg: #ffffff;
-  --gap: 28px;
-  --card-width: 340px;
-  width:92%;
-  max-width:1240px;
-  margin: 0 auto;
-  position:relative;
-  padding:28px 40px;
-  background: var(--bg);
-  border-radius: 10px;
-}
 
-/* Botones */
-.custom-carousel .nav {
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  width:64px;
-  height:64px;
-  border-radius:50%;
-  border:none;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  box-shadow: 0 8px 18px rgba(12, 35, 70, 0.12);
-  background: linear-gradient(180deg, #f8fbff, #e9f3ff);
-  z-index: 30;
-}
-.custom-carousel .nav.prev{ left: 6px; }
-.custom-carousel .nav.next{ right: 6px; }
-.custom-carousel .nav svg { width:22px; height:22px; fill:#0b66d1 }
+<script>
+(function () {
+  const carousels = document.querySelectorAll('.custom-carousel');
+  if (!carousels.length) return;
 
-/* Vista */
-.custom-carousel .viewport{ overflow:hidden; }
-.custom-carousel .track{
-  display:flex;
-  gap:var(--gap);
-  align-items:start;
-  transition: transform 520ms cubic-bezier(.2,.9,.3,1);
-}
+  carousels.forEach(initCarousel);
 
-/* Tarjeta */
-.custom-carousel .card{
-  width:var(--card-width);
-  min-width:var(--card-width);
-  background:var(--card-bg);
-  border-radius:6px;
-  box-shadow: 0 8px 20px rgba(12,35,70,0.06);
-  display:flex;
-  flex-direction:column;
-  border: 12px solid rgba(255,255,255,0.95);
-}
-.custom-carousel .product-img{
-  height:320px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:132px;
-}
-.bg-blue{ background:#bfe8ff; }
-.bg-pink{ background:#ffdbe6; }
-.bg-mint{ background:#dff8e6; }
-.bg-sky{ background:#cfe8ff; }
+  function initCarousel(carousel) {
+    const track = carousel.querySelector('.track');
+    const cards = Array.from(track.children);
+    const prevBtn = carousel.querySelector('.nav.prev');
+    const nextBtn = carousel.querySelector('.nav.next');
+    const viewport = track.parentElement;
+    let index = 0;
 
-.custom-carousel .card-body{
-  padding:20px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-.custom-carousel .title{ font-size:22px; margin:0; }
-.custom-carousel .desc{ font-size:14px; color:#6b7280; margin:0; }
-.custom-carousel .btn{
-  display:inline-block;
-  padding:12px 20px;
-  background:#1e5ed6;
-  color:white;
-  border-radius:4px;
-  font-weight:600;
-  text-transform:uppercase;
-}
-</style>
-{% load static %}
-<script src="{% static 'js/product_slider.js' %}"></script>
+    function update() {
+      const cardRect = cards[0].getBoundingClientRect();
+      const gap = parseFloat(getComputedStyle(track).gap) || 28;
+      const viewportWidth = viewport.getBoundingClientRect().width;
+      const offset = index * (cardRect.width + gap) - (viewportWidth - cardRect.width) / 2;
+      track.style.transform = `translateX(-${Math.max(0, offset)}px)`;
+    }
+
+    // Navegación
+    if (prevBtn) prevBtn.addEventListener('click', () => { index = Math.max(0, index - 1); update(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { index = Math.min(cards.length - 1, index + 1); update(); });
+
+    // Drag simplificado
+    let isDragging = false;
+    let startX = 0;
+    let startTransform = 0;
+
+    viewport.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('a') || e.target.closest('button')) return;
+      isDragging = true;
+      startX = e.clientX;
+      startTransform = -parseFloat(track.style.transform.replace('translateX(', '') || 0);
+      track.style.transition = 'none';
+      viewport.setPointerCapture && viewport.setPointerCapture(e.pointerId);
+    });
+
+    viewport.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      track.style.transform = `translateX(${-(startTransform - dx)}px)`;
+    });
+
+    viewport.addEventListener('pointerup', (e) => { isDragging = false; track.style.transition = ''; viewport.releasePointerCapture && viewport.releasePointerCapture(e.pointerId); });
+    viewport.addEventListener('pointercancel', () => { isDragging = false; });
+
+    update();
+  }
+})();
+</script>
+
+</body>
+</html>

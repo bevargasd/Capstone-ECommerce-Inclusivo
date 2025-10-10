@@ -44,3 +44,6 @@ def publicaciones(request):
 # Agregar productor
 def agregar(request):
     return render(request, "form_agregar_productos.html")
+
+def producto(request):
+    return render(request, "plantillas/producto.html")

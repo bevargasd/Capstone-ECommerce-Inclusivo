@@ -1,9 +1,8 @@
 {% load static %}
-{% include 'core/plantillas/dame_head.html' %}
-{% include 'core/plantillas/navbar.html' %}
+{% include 'plantillas/dame_head.html' %}
+{% include 'plantillas/navbar.html' %}
 
 <body>
-    {% load humanize %}
     
     <div class="card-wrapper">
         <div class="card">
@@ -33,7 +32,6 @@
                 <a href="#" class="product-link">Recógelo en la tienda</a>
 
                 <div class="product-price">
-                    <p class="new-price">Precio:<span>${{ producto.precio_producto | intcomma }}</span></p>
                 </div>
 
                 <div class="product-detail">
@@ -47,7 +45,6 @@
 
                 <!-- Botones de acción -->
                 <div class="purchase-info"> 
-                    <form action="{% url 'agregar_al_carrito' producto.id %}" method="post">
                         {% csrf_token %}
                         {% if user.is_authenticated %}
                         <div class="product-quantity">

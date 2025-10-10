@@ -15,7 +15,6 @@
     const nextBtn = carousel.querySelector('.nav.next');
     const viewport = track.parentElement; // .viewport
 
-    // Safety defaults
     let index = 0;
     let slideTimer = null;
 
@@ -26,7 +25,6 @@
       return { gap, cardWidth: cardRect.width, viewportWidth: viewport.getBoundingClientRect().width };
     }
 
-    // Obtiene translateX actual (puede venir como matrix)
     function currentTranslate() {
       const st = getComputedStyle(track).transform;
       if (st && st !== 'none') {
@@ -39,7 +37,6 @@
       return 0;
     }
 
-    // Centrar la tarjeta con índice `index`
     function update(animate = true) {
       if (!animate) track.style.transition = 'none';
       else track.style.transition = '';
@@ -77,13 +74,15 @@
     let startTransform = 0;
     let dragDelta = 0;
 
-    // Aseguramos touch-action para que no bloquee el swipe
     viewport.style.touchAction = viewport.style.touchAction || 'pan-y';
 
     viewport.addEventListener('pointerdown', (e) => {
+      // Ignora clicks sobre botones o enlaces
+      if(e.target.closest('button') || e.target.closest('a')) return;
+
       pointerDown = true;
       startX = e.clientX;
-      startTransform = -currentTranslate(); // valor positivo usado anteriormente
+      startTransform = -currentTranslate();
       track.style.transition = 'none';
       viewport.setPointerCapture && viewport.setPointerCapture(e.pointerId);
     });
@@ -99,11 +98,9 @@
     function settleAfterDrag() {
       const { gap, cardWidth, viewportWidth } = sizes();
       if (Math.abs(dragDelta) > cardWidth * 0.22) {
-        // swipe suficientemente grande -> mover índice
         if (dragDelta < 0) index = Math.min(cards.length - 1, index + 1);
         else index = Math.max(0, index - 1);
       } else {
-        // snap al índice más cercano
         const translateX = -currentTranslate();
         const approxIndex = Math.round((translateX + (viewportWidth - cardWidth) / 2) / (cardWidth + gap));
         index = Math.max(0, Math.min(cards.length - 1, approxIndex));
@@ -130,9 +127,8 @@
     // Click en tarjeta -> centrarla
     cards.forEach((c, i) => {
       c.addEventListener('click', (ev) => {
-        // evita centrar si el click es sobre un botón interno
         const tag = ev.target.tagName.toLowerCase();
-        if (tag === 'button' || tag === 'a') return;
+        if (tag === 'button' || tag === 'a') return; // ignorar clicks en botones/enlaces
         if (i !== index) {
           index = i;
           update();
@@ -141,7 +137,7 @@
       });
     });
 
-    // Auto-play (opcional). Puedes comentar si no quieres autoplay.
+    // Auto-play
     function startAuto() {
       stopAuto();
       slideTimer = setInterval(() => { index = Math.min(cards.length - 1, index + 1); if (index === cards.length - 1) index = 0; update(); }, 5000);
@@ -149,10 +145,8 @@
     function stopAuto() { if (slideTimer) { clearInterval(slideTimer); slideTimer = null; } }
     function resetAuto() { stopAuto(); startAuto(); }
 
-    // Start autoplay by default
     startAuto();
 
-    // expose update for debugging
     carousel._sliderUpdate = update;
   }
 })();
