@@ -72,15 +72,23 @@ WSGI_APPLICATION = 'apt_ecommerce.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+#se debe descomentar para usar mysql
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': 'ecommerce',
+#        'USER': 'root',
+#        'PASSWORD': '',
+#       'HOST': 'localhost',
+#        'PORT': '3306',
+#    }
+#}
+#se debe comentar esta sentencio para usar mysql
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ecommerce',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / "db.sqlite3",
     }
 }
 
