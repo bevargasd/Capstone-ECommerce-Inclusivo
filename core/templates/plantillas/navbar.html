@@ -301,4 +301,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+// === 🔧 MEJORAS DE PERSISTENCIA Y FUNCIONALIDAD ===
+
+// 1️⃣ Mantener el estado del micrófono entre páginas
+window.addEventListener('beforeunload', () => {
+  sessionStorage.setItem('voiceListening', listening ? '1' : '0');
+});
+if (sessionStorage.getItem('voiceListening') === '1') {
+  setTimeout(() => startListening(), 600);
+}
+
+// 2️⃣ Permitir múltiples comandos de voz seguidos sin errores
+recog.addEventListener('result', () => {
+  try {
+    recog.stop(); // Reinicia internamente para aceptar comandos nuevos
+    setTimeout(() => {
+      if (listening) recog.start();
+    }, 800);
+  } catch (err) {
+    console.warn('Auto-restart speech error', err);
+  }
+});
+
+// 3️⃣ Ampliar la función de lupa a todo el contenido de la página
+(function enhanceZoom(){
+  const lens = document.querySelector('.magnify-lens');
+  const zoomImg = lens.querySelector('img');
+  document.addEventListener('mousemove', e => {
+    if (!zoomEnabled) return;
+    const x = e.pageX;
+    const y = e.pageY;
+    const scale = 1.8; // nivel de zoom
+    lens.style.display = 'block';
+    lens.style.left = `${x - lens.offsetWidth / 2}px`;
+    lens.style.top = `${y - lens.offsetHeight / 2}px`;
+
+    // Crea una vista aumentada del área bajo el cursor
+    html2canvas(document.body, {
+      x: x - 60,
+      y: y - 60,
+      width: 120,
+      height: 120,
+      scale: scale
+    }).then(canvas => {
+      zoomImg.src = canvas.toDataURL();
+    });
+  });
+})();
+
+// Añade script html2canvas si no existe (para renderizar cualquier contenido)
+if (!window.html2canvas) {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+  document.head.appendChild(s);
+}
+
 </script>

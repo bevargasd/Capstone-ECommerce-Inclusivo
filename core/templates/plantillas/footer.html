@@ -1,68 +1,70 @@
-<!-- Footer con Searchbar más larga -->
-<footer class="footer">
+<!-- Footer Inclusivo -->
+<footer class="footer" role="contentinfo" aria-label="Pie de página inclusivo">
   <div class="footer-container">
+    
     <!-- Columna 1: Suscripción -->
     <div class="footer-column subscribe">
-      <h4>SUBSCRIBE TO OUR EMAILS</h4>
+      <h4>Suscríbete para recibir novedades</h4>
+      <p class="footer-desc">Mantente informado sobre nuevas funciones, productos accesibles y mejoras de inclusión.</p>
       <div class="subscribe-box">
-        <input type="email" placeholder="Email Address">
-        <button>SIGN UP</button>
+        <label for="email-subscribe" class="visually-hidden">Correo electrónico</label>
+        <input id="email-subscribe" type="email" placeholder="Tu correo electrónico" aria-label="Campo para ingresar correo electrónico">
+        <button aria-label="Suscribirse al boletín">Suscribirme</button>
       </div>
     </div>
 
-    <!-- Columna 2: Help -->
+    <!-- Columna 2: Accesibilidad y Ayuda -->
     <div class="footer-column">
-      <h4>HELP</h4>
+      <h4>Soporte y Accesibilidad</h4>
       <ul>
-        <li><a href="#">Live Chat</a></li>
-        <li><a href="#">Call Us</a></li>
-        <li><a href="#">Text Us</a></li>
-        <li><a href="#">FAQ / Contact Us</a></li>
-        <li><a href="#">Returns / Exchanges</a></li>
+        <li><a href="#" aria-label="Asistencia en tiempo real">Asistencia en tiempo real</a></li>
+        <li><a href="#" aria-label="Guía de accesibilidad">Guía de accesibilidad</a></li>
+        <li><a href="#" aria-label="Centro de ayuda inclusivo">Centro de ayuda inclusivo</a></li>
+        <li><a href="#" aria-label="Preguntas frecuentes">Preguntas frecuentes</a></li>
+        <li><a href="#" aria-label="Políticas de inclusión">Políticas de inclusión</a></li>
       </ul>
     </div>
 
-    <!-- Columna 3: Shop -->
+    <!-- Columna 3: Tienda -->
     <div class="footer-column">
-      <h4>SHOP</h4>
+      <h4>Explora</h4>
       <ul>
-        <li><a href="#">Men's Shoes</a></li>
-        <li><a href="#">Women's Shoes</a></li>
-        <li><a href="#">Men's Apparel</a></li>
-        <li><a href="#">Women's Apparel</a></li>
-        <li><a href="#">Gift Cards</a></li>
+        <li><a href="#">Productos destacados</a></li>
+        <li><a href="#">Categorías</a></li>
+        <li><a href="#">Ofertas y descuentos</a></li>
+        <li><a href="#">Guías de compra accesibles</a></li>
+        <li><a href="#">Nuevas colecciones</a></li>
       </ul>
     </div>
 
-    <!-- Columna 4: Company -->
+    <!-- Columna 4: Acerca de -->
     <div class="footer-column">
-      <h4>COMPANY</h4>
+      <h4>Sobre Nosotros</h4>
       <ul>
-        <li><a href="#">Our Story</a></li>
-        <li><a href="#">Sustainability</a></li>
-        <li><a href="#">Investors</a></li>
-        <li><a href="#">Careers</a></li>
-        <li><a href="#">Blog</a></li>
+        <li><a href="#">Nuestra misión inclusiva</a></li>
+        <li><a href="#">Equipo y comunidad</a></li>
+        <li><a href="#">Innovación accesible</a></li>
+        <li><a href="#">Trabaja con nosotros</a></li>
+        <li><a href="#">Blog y artículos</a></li>
       </ul>
     </div>
   </div>
 
   <!-- Redes sociales -->
-  <div class="social-media">
-    <a href="#"><i class="fab fa-instagram"></i></a>
-    <a href="#"><i class="fab fa-facebook"></i></a>
-    <a href="#"><i class="fab fa-pinterest"></i></a>
-    <a href="#"><i class="fab fa-twitter"></i></a>
-    <a href="#"><i class="fab fa-youtube"></i></a>
+  <div class="social-media" aria-label="Redes sociales">
+    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+    <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
   </div>
 
-  <!-- Derechos de autor -->
+  <!-- Derechos -->
   <div class="footer-bottom">
-    <p>© 2025 IncluShop. All Rights Reserved</p>
+    <p>© 2025 <strong>IncluShop</strong>. Promoviendo tecnología accesible para todos.</p>
     <div class="footer-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
-      <a href="#">Refund Policy</a>
+      <a href="#">Política de privacidad</a>
+      <a href="#">Términos de uso</a>
+      <a href="#">Accesibilidad digital</a>
     </div>
   </div>
 </footer>
@@ -71,26 +73,27 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <style>
-/* Footer General */
 .footer {
-  background: #111;
-  color: #fff;
-  padding: 40px 20px;
-  font-family: Arial, sans-serif;
+  background: #0c0c0c;
+  color: #f5f5f5;
+  padding: 50px 20px;
+  font-family: 'Poppins', sans-serif;
 }
 
 .footer-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 40px;
   max-width: 1200px;
-  margin: 0 auto 30px;
+  margin: 0 auto 40px;
 }
 
 .footer-column h4 {
-  font-size: 14px;
+  font-size: 15px;
   margin-bottom: 15px;
-  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #6C63FF;
+  letter-spacing: 0.5px;
 }
 
 .footer-column ul {
@@ -100,15 +103,21 @@
 
 .footer-column ul li a {
   text-decoration: none;
-  color: #aaa;
+  color: #ccc;
   font-size: 14px;
   display: block;
-  margin-bottom: 8px;
-  transition: color 0.3s;
+  margin-bottom: 10px;
+  transition: color 0.3s ease;
 }
 
 .footer-column ul li a:hover {
-  color: #6C63FF; /* Morado de tu carrito */
+  color: #6C63FF;
+}
+
+.footer-desc {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 10px;
 }
 
 /* Suscripción */
@@ -117,7 +126,7 @@
   border: 1px solid #444;
   border-radius: 25px;
   overflow: hidden;
-  max-width: 400px; /* 🔥 Aumentamos ancho */
+  max-width: 420px;
   margin-top: 10px;
 }
 
@@ -127,15 +136,16 @@
   border: none;
   outline: none;
   font-size: 14px;
+  color: #222;
 }
 
 .subscribe-box button {
   background: #6C63FF;
-  color: white;
+  color: #fff;
   border: none;
-  padding: 12px 25px; /* Botón más grande */
+  padding: 12px 25px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.3s ease;
 }
 
 .subscribe-box button:hover {
@@ -150,20 +160,21 @@
 
 .social-media a {
   color: #fff;
-  margin: 0 10px;
-  font-size: 20px;
-  transition: color 0.3s;
+  margin: 0 12px;
+  font-size: 22px;
+  transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .social-media a:hover {
   color: #6C63FF;
+  transform: scale(1.1);
 }
 
-/* Parte inferior */
+/* Pie inferior */
 .footer-bottom {
   text-align: center;
-  font-size: 12px;
-  color: #aaa;
+  font-size: 13px;
+  color: #999;
 }
 
 .footer-bottom .footer-links {
@@ -179,5 +190,15 @@
 
 .footer-bottom .footer-links a:hover {
   color: #6C63FF;
+}
+
+/* Accesibilidad */
+.visually-hidden {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 </style>
