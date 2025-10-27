@@ -135,11 +135,23 @@
         {% csrf_token %}
 
         <div class="form-row"><label for="id_username">Nombre de usuario</label><input type="text" name="username" id="id_username" required></div>
-        <div class="form-row"><label for="id_email">Correo</label><input type="email" name="email" id="id_email" required></div>
+        <div class="form-row"><label for="id_email">Correo</label><input type="email" name="email" id="id_email" 
+          pattern="^[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})$" 
+          required></div>
+        <span class="error-message" id="error-email"></span>  
         <div class="form-row"><label for="id_first_name">Nombres</label><input type="text" name="first_name" id="id_first_name"></div>
         <div class="form-row"><label for="id_last_name">Apellidos</label><input type="text" name="last_name" id="id_last_name"></div>
-        <div class="form-row"><label for="id_password1">Contraseña</label><input type="password" name="password1" id="id_password1" required></div>
-        <div class="form-row"><label for="id_password2">Confirmar contraseña</label><input type="password" name="password2" id="id_password2" required><div id="password-strength" class="small-note"></div></div>
+        <div class="form-row"><label for="id_password1">Contraseña</label><input type="password" name="password1" id="id_password1" 
+          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$"
+          minlength="8"
+          maxlength="12" 
+          required></div>
+          <span class="error-message" id="error-password1"></span>
+        <div class="form-row"><label for="id_password2">Confirmar contraseña</label><input type="password" name="password2" id="id_password2" 
+          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$"
+          minlength="8"
+          maxlength="12"
+          required><div id="password-strength" class="small-note"></div></div>
 
         <hr><h4>Detalles y preferencia</h4>
         <div class="form-row"><label for="id_phone">Teléfono</label><input type="text" name="phone" id="id_phone"></div>
@@ -182,38 +194,6 @@
       </div>
     </aside>
   </div>
-
-  <script>
-    (function(){
-      const pw1 = document.getElementById('id_password1');
-      const strength = document.getElementById('password-strength');
-      function score(pw){
-        let s = 0;
-        if(!pw) return s;
-        if(pw.length >= 8) s++;
-        if(/[A-Z]/.test(pw)) s++;
-        if(/[0-9]/.test(pw)) s++;
-        if(/[\W]/.test(pw)) s++;
-        return s;
-      }
-      function update(){
-        const s = score(pw1.value);
-        const labels = ['Muy débil','Débil','Medio','Fuerte','Muy fuerte'];
-        strength.textContent = pw1.value ? labels[s] : '';
-      }
-      if(pw1) pw1.addEventListener('input', update);
-
-      const avatarInput = document.getElementById('id_avatar');
-      const preview = document.getElementById('avatarPreview');
-      if(avatarInput){
-        avatarInput.addEventListener('change', (e)=>{
-          const f = e.target.files[0];
-          if(!f) return;
-          const url = URL.createObjectURL(f);
-          preview.src = url;
-        });
-      }
-    })();
-  </script>
+   <script src="{% static 'js/validaciones_crear_cuenta.js' %}"></script>
 </body>
 </html>
