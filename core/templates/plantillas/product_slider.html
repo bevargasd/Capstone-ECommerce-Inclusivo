@@ -1,29 +1,29 @@
 {% load static %}
 <div class="custom-carousel" aria-label="Carrusel de productos">
-  <button class="nav prev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+  <button class="nav prev" aria-label="Anterior">
+    <svg viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+  </button>
 
   <div class="viewport">
     <ul class="track" id="track" role="list">
       <li class="card" data-command="producto uno|zanahoria|carrot" role="listitem">
-        <div class="product-img bg-pink"><span style="font-size:120px">🥕</span></div>
+        <div class="product-img bg-pink"><span>🥕</span></div>
         <div class="card-body">
           <h3 class="title">Zanahoria</h3>
           <p class="desc">⚡ Fresh carrot, best in the world!</p>
           <div class="actions"><a href="{% url 'producto' %}" class="btn">Purchase now</a></div>
         </div>
       </li>
-
       <li class="card" data-command="producto dos|brocoli|broccoli" role="listitem">
-        <div class="product-img bg-mint"><span style="font-size:120px">🥦</span></div>
+        <div class="product-img bg-mint"><span>🥦</span></div>
         <div class="card-body">
           <h3 class="title">Brocoli</h3>
           <p class="desc">Organic and green.</p>
           <div class="actions"><a href="{% url 'producto' %}" class="btn">Purchase now</a></div>
         </div>
       </li>
-
       <li class="card" data-command="producto tres|tomate|tomato" role="listitem">
-        <div class="product-img bg-blue"><span style="font-size:120px">🍅</span></div>
+        <div class="product-img bg-blue"><span>🍅</span></div>
         <div class="card-body">
           <h3 class="title">Tomate</h3>
           <p class="desc">Ripe and tasty tomatoes.</p>
@@ -33,36 +33,130 @@
     </ul>
   </div>
 
-  <button class="nav next" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></button>
+  <button class="nav next" aria-label="Siguiente">
+    <svg viewBox="0 0 24 24"><path d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+  </button>
 </div>
 
 <style>
-.custom-carousel{--bg:#eaf3f9;--card-bg:#fff;--gap:28px;--card-width:340px;width:92%;max-width:1240px;margin:0 auto;position:relative;padding:28px 40px;background:var(--bg);border-radius:10px;}
-.custom-carousel .nav{position:absolute;top:50%;transform:translateY(-50%);width:64px;height:64px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 18px rgba(12,35,70,0.12);background:linear-gradient(180deg,#f8fbff,#e9f3ff);}
-.custom-carousel .nav.prev{left:6px;} .custom-carousel .nav.next{right:6px;}
-.custom-carousel .viewport{overflow:hidden;}
-.custom-carousel .track{display:flex;gap:var(--gap);align-items:start;transition:transform .5s cubic-bezier(.2,.9,.3,1);}
-.custom-carousel .card{width:var(--card-width);background:var(--card-bg);border-radius:6px;box-shadow:0 8px 20px rgba(12,35,70,0.06);display:flex;flex-direction:column;border:12px solid rgba(255,255,255,0.95);}
-.custom-carousel .product-img{height:320px;display:flex;align-items:center;justify-content:center;font-size:132px;}
-.bg-blue{background:#bfe8ff;} .bg-pink{background:#ffdbe6;} .bg-mint{background:#dff8e6;}
-.custom-carousel .card-body{padding:20px;display:flex;flex-direction:column;gap:12px;}
-.custom-carousel .btn{display:inline-block;padding:12px 20px;background:#1e5ed6;color:white;border-radius:4px;text-align:center;text-decoration:none;}
+.custom-carousel {
+  --bg:#eaf3f9;
+  --card-bg:#fff;
+  --gap:28px;
+  width: 92%;
+  max-width: 1240px;
+  margin: 0 auto;
+  position: relative;
+  padding: 28px 20px;
+  background: var(--bg);
+  border-radius: 10px;
+}
+.custom-carousel .nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow:0 8px 18px rgba(12,35,70,0.12);
+  background: linear-gradient(180deg,#f8fbff,#e9f3ff);
+  z-index: 2;
+}
+.custom-carousel .nav.prev{ left: 6px; }
+.custom-carousel .nav.next{ right: 6px; }
+.custom-carousel .viewport { overflow: hidden; }
+.custom-carousel .track {
+  display: flex;
+  gap: var(--gap);
+  transition: transform .5s cubic-bezier(.2,.9,.3,1);
+}
+.custom-carousel .card {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 340px;
+  background: var(--card-bg);
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(12,35,70,0.06);
+  display: flex;
+  flex-direction: column;
+  border: 12px solid rgba(255,255,255,0.95);
+}
+.custom-carousel .product-img {
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 120px;
+}
+.bg-blue{ background:#bfe8ff; }
+.bg-pink{ background:#ffdbe6; }
+.bg-mint{ background:#dff8e6; }
+.custom-carousel .card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.custom-carousel .btn {
+  display: inline-block;
+  padding: 12px 20px;
+  background: #1e5ed6;
+  color: white;
+  border-radius: 4px;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .custom-carousel .card { max-width: 280px; }
+}
+@media(max-width:768px){
+  .custom-carousel { padding: 20px 10px; }
+  .custom-carousel .card { max-width: 220px; }
+  .custom-carousel .product-img { height: 220px; font-size: 100px; }
+  .custom-carousel .nav { width: 36px; height: 36px; }
+}
+@media(max-width:480px){
+  .custom-carousel .card { max-width: 180px; }
+  .custom-carousel .product-img { height: 180px; font-size: 72px; }
+}
 </style>
 
 <script>
 (function(){
-  const carousels=document.querySelectorAll('.custom-carousel');
+  const carousels = document.querySelectorAll('.custom-carousel');
   carousels.forEach(car=>{
-    const track=car.querySelector('.track'),cards=[...track.children];
-    const prev=car.querySelector('.prev'),next=car.querySelector('.next');
-    let idx=0;
+    const track = car.querySelector('.track');
+    const cards = [...track.children];
+    const prev = car.querySelector('.prev');
+    const next = car.querySelector('.next');
+    let idx = 0;
+
     function update(){
-      const gap=parseFloat(getComputedStyle(track).gap)||28;
-      const w=cards[0].offsetWidth;
-      track.style.transform=`translateX(-${idx*(w+gap)}px)`;
+      const gap = parseFloat(getComputedStyle(track).gap) || 28;
+      const w = cards[0].offsetWidth;
+      track.style.transform = `translateX(-${idx*(w+gap)}px)`;
     }
-    prev.addEventListener('click',()=>{idx=Math.max(0,idx-1);update();});
-    next.addEventListener('click',()=>{idx=Math.min(cards.length-1,idx+1);update();});
+
+    prev.addEventListener('click', ()=>{
+      idx = Math.max(0, idx-1);
+      update();
+    });
+
+    next.addEventListener('click', ()=>{
+      idx = Math.min(cards.length-1, idx+1);
+      update();
+    });
+
+    // Ajuste automático al redimensionar
+    window.addEventListener('resize', update);
+    update();
   });
 })();
 </script>

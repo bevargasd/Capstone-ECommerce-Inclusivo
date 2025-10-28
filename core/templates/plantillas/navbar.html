@@ -119,44 +119,47 @@
   transform: translate(-50%, -50%);
 }
 </style>
-
 <script>
+/* Refactor: Voice + Scroll + Slider + Lupa (throttled) */
 document.addEventListener('DOMContentLoaded', () => {
+  // ---- CONFIG / ELEMENTOS ----
   const voiceBtn = document.getElementById('voiceBtn');
   const indicator = document.getElementById('voiceIndicator');
 
-  // toast simple
+  // Exponer listening globalmente para beforeunload y debugging
+  window.voiceListening = false;
+
+  // Toast accesible
   const toast = document.createElement('div');
   toast.id = 'voiceToast';
+  toast.setAttribute('role','status');
+  toast.setAttribute('aria-live','polite');
   toast.style.cssText = 'position:fixed;top:80px;right:20px;z-index:3000;background:rgba(0,0,0,0.85);color:#fff;padding:10px 16px;border-radius:10px;font-size:0.95rem;opacity:0;transition:opacity .34s';
   document.body.appendChild(toast);
-  function showToast(msg){ toast.textContent = msg; toast.style.opacity = '1'; clearTimeout(toast._t); toast._t = setTimeout(()=> toast.style.opacity = '0', 3200); }
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=> toast.style.opacity = '0', 3200);
+  }
 
-  // util normalizar
+  // Normalize util
   function normalize(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s]/g,'').trim(); }
 
+  // Find scrollable container (light-weight)
   function findScrollableContainer() {
-    if (document.scrollingElement && document.scrollingElement.scrollHeight > document.scrollingElement.clientHeight) {
-      return document.scrollingElement;
+    if (document.scrollingElement && document.scrollingElement.scrollHeight > document.scrollingElement.clientHeight) return document.scrollingElement;
+    const selectors = ['main','.main-content','.container','.content','#content','.app','.page','.scrollable'];
+    for (const sel of selectors) {
+      const el = document.querySelector(sel);
+      if (el) {
+        try{
+          const s = window.getComputedStyle(el);
+          if ((/auto|scroll|overlay/).test(s.overflowY) && el.scrollHeight > el.clientHeight + 2) return el;
+        }catch(e){}
+      }
     }
-    const candidates = Array.from(document.querySelectorAll('body, html, main, .main-content, .container, .content, #content, .app, .page, .scrollable'));
-    for (const el of candidates) {
-      try {
-        const style = window.getComputedStyle(el);
-        const overflowY = style.overflowY;
-        if ((overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay') && el.scrollHeight > el.clientHeight + 2) {
-          return el;
-        }
-      } catch(e){}
-    }
-    const all = Array.from(document.body.querySelectorAll('*'));
-    for (const el of all) {
-      try {
-        const hasScrollable = el.scrollHeight > el.clientHeight + 2;
-        const style = window.getComputedStyle(el);
-        if (hasScrollable && /auto|scroll|overlay/.test(style.overflowY)) return el;
-      } catch(e){}
-    }
+    // fallback to documentElement/body
     if (document.documentElement && document.documentElement.scrollHeight > document.documentElement.clientHeight) return document.documentElement;
     if (document.body && document.body.scrollHeight > document.body.clientHeight) return document.body;
     return null;
@@ -164,24 +167,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function safeScrollBy(container, amount) {
     if (!container) return false;
-    const before = container.scrollTop ?? 0;
-    try { container.scrollBy({ top: amount, behavior: 'smooth' }); } catch (e) { container.scrollTop = (container.scrollTop || 0) + amount; }
-    await new Promise(res => setTimeout(res, 350));
-    const after = container.scrollTop ?? 0;
+    const before = container.scrollTop || 0;
+    try { container.scrollBy({ top: amount, behavior: 'smooth' }); } catch(e) { container.scrollTop = before + amount; }
+    await new Promise(res => setTimeout(res, 360));
+    const after = container.scrollTop || 0;
     if (Math.abs(after - before) > 2) return true;
+    // fallback step scroll
     const step = amount > 0 ? 100 : -100;
-    const steps = Math.ceil(Math.abs(amount) / Math.abs(step));
-    for (let i = 0; i < steps; i++) {
-      try { container.scrollBy({ top: step, behavior: 'auto' }); } catch (e) { container.scrollTop += step; }
+    const steps = Math.ceil(Math.abs(amount)/Math.abs(step));
+    for (let i=0;i<steps;i++){
+      try{ container.scrollBy({top: step, behavior: 'auto'}); }catch(e){ container.scrollTop += step; }
       await new Promise(res => setTimeout(res, 120));
     }
-    return (Math.abs((container.scrollTop ?? 0) - before) > 2);
+    return Math.abs((container.scrollTop||0) - before) > 2;
   }
 
+  // Speech synthesis helper
   function speak(text) {
     if (!window.speechSynthesis) return;
     try {
-      window.speechSynthesis.cancel();
+      window.speechSynthesis.cancel(); // prevent queue buildup
       const u = new SpeechSynthesisUtterance(text);
       u.lang = 'es-CL';
       window.speechSynthesis.speak(u);
@@ -190,21 +195,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    voiceBtn.addEventListener('click', ()=> alert('Reconocimiento por voz no soportado en este navegador.'));
+    voiceBtn && voiceBtn.addEventListener('click', ()=> alert('Reconocimiento por voz no soportado en este navegador.'));
     return;
   }
+
+  // ---- RECOGNITION SETUP ----
   const recog = new SpeechRecognition();
   recog.lang = 'es-CL';
   recog.interimResults = false;
-  recog.continuous = true;
+  recog.continuous = true; // keep listening where supported
 
-  let listening = false;
-  function startListening(){ try { recog.start(); listening = true; indicator.classList.remove('visually-hidden'); voiceBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>'; showToast('🎤 Escuchando...'); } catch(e){ console.warn(e); } }
-  function stopListening(){ try { recog.stop(); listening = false; indicator.classList.add('visually-hidden'); voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>'; showToast('🛑 Micrófono detenido'); } catch(e){ console.warn(e); } }
-  voiceBtn.addEventListener('click', ()=> listening ? stopListening() : startListening());
-  recog.addEventListener('end', ()=> { if (listening) setTimeout(()=> { try { recog.start(); } catch(e) {} }, 350); });
+  // State
+  window.voiceListening = sessionStorage.getItem('voiceListening') === '1'; // restore initial
+  function updateUIListening(on){
+    window.voiceListening = !!on;
+    if (!indicator || !voiceBtn) return;
+    indicator.classList.toggle('visually-hidden', !on);
+    voiceBtn.innerHTML = on ? '<i class="fas fa-microphone-slash"></i>' : '<i class="fas fa-microphone"></i>';
+    voiceBtn.setAttribute('aria-pressed', String(on));
+  }
 
-  // --- INTEGRACIÓN DE SLIDER ---
+  // Start/stop helpers
+  function startListening(){
+    try{
+      recog.start();
+      updateUIListening(true);
+      showToast('🎤 Escuchando...');
+    }catch(e){ console.warn('startListening err', e); }
+  }
+  function stopListening(){
+    try{
+      recog.stop();
+      updateUIListening(false);
+      showToast('🛑 Micrófono detenido');
+    }catch(e){ console.warn('stopListening err', e); }
+  }
+
+  // button wiring
+  if (voiceBtn) voiceBtn.addEventListener('click', ()=> window.voiceListening ? stopListening() : startListening());
+
+  // Ensure we persist on unload (same scope)
+  window.addEventListener('beforeunload', () => {
+    try { sessionStorage.setItem('voiceListening', window.voiceListening ? '1' : '0'); } catch(e){}
+  });
+
+  // auto-restart if was listening
+  if (window.voiceListening) {
+    setTimeout(()=> startListening(), 600);
+  }
+
+  // Robust end handler with small backoff
+  let recogRestarting = false;
+  recog.addEventListener('end', () => {
+    if (!window.voiceListening) return;
+    if (recogRestarting) return;
+    recogRestarting = true;
+    setTimeout(()=> {
+      try { recog.start(); } catch(e){ console.warn('recog restart', e); }
+      recogRestarting = false;
+    }, 400);
+  });
+
+  recog.addEventListener('error', (e) => {
+    console.error('SpeechRecognition error', e);
+    showToast('⚠️ Error con micrófono');
+    if (e && e.error === 'not-allowed') {
+      speak('Permisos de micrófono denegados.');
+      stopListening();
+    }
+  });
+
+  // ---- SLIDER / COMANDOS ----
   const sliderCards = Array.from(document.querySelectorAll('.custom-carousel .card[data-command]'));
   const sliderCommands = sliderCards.map(card => {
     const link = card.querySelector('a.btn');
@@ -213,147 +274,131 @@ document.addEventListener('DOMContentLoaded', () => {
     return { el: link || card, url: link ? link.href : null, label: title, phrases };
   });
 
+  // Single RESULT handler (no duplicates)
   recog.addEventListener('result', async (ev) => {
-    const transcript = Array.from(ev.results).map(r => r[0].transcript).join(' ').trim();
-    console.log('Voz detectada:', transcript);
-    showToast(`🎧 "${transcript}"`);
-    const t = normalize(transcript);
+    try {
+      const transcript = Array.from(ev.results).map(r => r[0].transcript).join(' ').trim();
+      console.log('Voz detectada:', transcript);
+      showToast(`🎧 "${transcript}"`);
+      const t = normalize(transcript);
 
-    if (/\b(bajar|abajo|scroll down|desplazar abajo|desplazar hacia abajo)\b/.test(t)) {
-      const container = findScrollableContainer();
-      if (!container) { speak('No encontré una área desplazable en esta página.'); showToast('⚠️ No hay área desplazable detectada'); return; }
-      const ok = await safeScrollBy(container, Math.round(container.clientHeight * 0.7));
-      if (ok) { speak('Desplazando hacia abajo'); showToast('⬇️ Bajando'); } else { speak('No pude desplazar la página'); showToast('⚠️ Scroll no disponible'); }
-      return;
-    }
-    if (/\b(subir|arriba|scroll up|desplazar arriba|desplazar hacia arriba)\b/.test(t)) {
-      const container = findScrollableContainer();
-      if (!container) { speak('No encontré una área desplazable en esta página.'); showToast('⚠️ No hay área desplazable detectada'); return; }
-      const ok = await safeScrollBy(container, -Math.round(container.clientHeight * 0.7));
-      if (ok) { speak('Desplazando hacia arriba'); showToast('⬆️ Subiendo'); } else { speak('No pude desplazar la página'); showToast('⚠️ Scroll no disponible'); }
-      return;
-    }
-
-    // ---- COMANDOS DE NAVEGACIÓN ----
-    if (/\b(hogar|inicio|ir a inicio|pagina principal|home)\b/.test(t)) { speak('Volviendo al inicio'); showToast('🏠 Abriendo inicio'); window.location.href = "{% url 'home.html' %}"; return; }
-    if (/\b(tienda)\b/.test(t)) { speak('Abriendo tienda'); showToast('⏳ Abriendo tienda'); window.location.href = "{% url 'tienda' %}"; return; }
-    if (/\b(carrito|mi carrito)\b/.test(t)) { speak('Abriendo carrito'); showToast('⏳ Abriendo carrito'); window.location.href = "{% url 'carrito' %}"; return; }
-
-    // --- SLIDER PRODUCTOS ---
-    let matched = null;
-    for (const cmd of sliderCommands) {
-      if (cmd.phrases.some(p => t === p || t.includes(p) || p.includes(t))) {
-        matched = cmd;
-        break;
+      // SCROLL
+      if (/\b(bajar|abajo|scroll down|desplazar abajo|desplazar hacia abajo)\b/.test(t)) {
+        const container = findScrollableContainer();
+        if (!container) { speak('No encontré una área desplazable en esta página.'); showToast('⚠️ No hay área desplazable detectada'); return; }
+        const ok = await safeScrollBy(container, Math.round(container.clientHeight * 0.7));
+        if (ok) { speak('Desplazando hacia abajo'); showToast('⬇️ Bajando'); } else { speak('No pude desplazar la página'); showToast('⚠️ Scroll no disponible'); }
+        return;
       }
-    }
-    if (matched) {
-      speak(`Abriendo ${matched.label}`);
-      showToast(`✅ ${matched.label}`);
-      if (matched.url) window.location.href = matched.url;
-      else matched.el.click();
-      return;
-    }
+      if (/\b(subir|arriba|scroll up|desplazar arriba|desplazar hacia arriba)\b/.test(t)) {
+        const container = findScrollableContainer();
+        if (!container) { speak('No encontré una área desplazable en esta página.'); showToast('⚠️ No hay área desplazable detectada'); return; }
+        const ok = await safeScrollBy(container, -Math.round(container.clientHeight * 0.7));
+        if (ok) { speak('Desplazando hacia arriba'); showToast('⬆️ Subiendo'); } else { speak('No pude desplazar la página'); showToast('⚠️ Scroll no disponible'); }
+        return;
+      }
 
-    // --- LUPA ---
-    if (/\b(lupa|activar lupa|zoom|acercar)\b/.test(t)) { enableZoom(); return; }
-    if (/\b(desactivar lupa|quitar lupa|alejar|desactivar zoom)\b/.test(t)) { disableZoom(); return; }
+      // NAVIGATION (conserva tus tags Django)
+      if (/\b(hogar|inicio|ir a inicio|pagina principal|home)\b/.test(t)) { speak('Volviendo al inicio'); showToast('🏠 Abriendo inicio'); window.location.href = "{% url 'home.html' %}"; return; }
+      if (/\b(carrito|mi carrito|abrir carrito)\b/.test(t)) { speak('Abriendo carrito'); showToast('🛒 Abriendo carrito'); window.location.href = "{% url 'carrito' %}"; return; }
+      if (/\b(asistente|chat|abrir asistente|asistente virtual)\b/.test(t)) { speak('Abriendo asistente'); showToast('💬 Abriendo asistente'); window.location.href = "{% url 'chat' %}"; return; }
+      if (/\b(tienda|productos|catalogo|ver tienda)\b/.test(t)) { speak('Abriendo tienda'); showToast('🛍️ Abriendo tienda'); window.location.href = "{% url 'tienda' %}"; return; }
+      if (/\b(foro|abrir foro|ver foro)\b/.test(t)) { speak('Abriendo foro'); showToast('💭 Abriendo foro'); window.location.href = "{% url 'foro' %}"; return; }
+      if (/\b(agregar producto|subir producto|nuevo producto|agregar)\b/.test(t)) { speak('Abriendo página para agregar producto'); showToast('➕ Agregar producto'); window.location.href = "{% url 'agregar' %}"; return; }
+      if (/\b(perfil|mi perfil|usuario|ver perfil)\b/.test(t)) { speak('Abriendo perfil de usuario'); showToast('👤 Perfil'); window.location.href = "{% url 'perfil' %}"; return; }
+      if (/\b(iniciar sesion|login|entrar)\b/.test(t)) { speak('Abriendo inicio de sesión'); showToast('🔐 Iniciar sesión'); window.location.href = "{% url 'login' %}"; return; }
+      if (/\b(crear cuenta|registrarme|registro|nuevo usuario)\b/.test(t)) { speak('Abriendo página de registro'); showToast('🧾 Crear cuenta'); window.location.href = "{% url 'registro' %}"; return; }
+      if (/\b(cerrar sesion|salir|logout)\b/.test(t)) { speak('Cerrando sesión'); showToast('🚪 Cerrando sesión'); window.location.href = "#"; return; }
 
-    speak('No entendí el comando. Prueba decir "bajar" o "subir".');
+      // SLIDER MATCH
+      let matched = null;
+      for (const cmd of sliderCommands) {
+        if (cmd.phrases.some(p => t === p || t.includes(p) || p.includes(t))) { matched = cmd; break; }
+      }
+      if (matched) {
+        speak(`Abriendo ${matched.label}`);
+        showToast(`✅ ${matched.label}`);
+        if (matched.url) window.location.href = matched.url; else matched.el.click();
+        return;
+      }
+
+      // LUPA toggle
+      if (/\b(lupa|activar lupa|zoom|acercar)\b/.test(t)) { enableZoom(); return; }
+      if (/\b(desactivar lupa|quitar lupa|alejar|desactivar zoom)\b/.test(t)) { disableZoom(); return; }
+
+      speak('No entendí el comando. Prueba decir "bajar" o "subir".');
+    } catch (err) {
+      console.error('result handler error', err);
+    }
   });
 
-  recog.addEventListener('error', (e) => {
-    console.error('SpeechRecognition error', e);
-    showToast('⚠️ Error con micrófono');
-    if (e.error === 'not-allowed') { speak('Permisos de micrófono denegados.'); stopListening(); }
+  // Allow quick restart pattern but debounced to avoid invalidstate
+  let lastResultAt = 0;
+  recog.addEventListener('result', () => {
+    const now = Date.now();
+    if (now - lastResultAt < 700) return; // ignore if results too frequent
+    lastResultAt = now;
+    // avoid forcing stop/start here — rely on end handler/backoff
   });
 
-  window.__getScrollableContainer = findScrollableContainer;
-
-  // --- LUPA ---
+  // ---- LUPA (throttled, html2canvas on-demand) ----
   let zoomEnabled = false;
-
-  function enableZoom() { zoomEnabled = true; showToast('🔍 Lupa activada'); speak('Lupa activada'); }
-  function disableZoom() { zoomEnabled = false; showToast('❌ Lupa desactivada'); speak('Lupa desactivada'); }
-
   const lens = document.createElement('div');
   lens.className = 'magnify-lens';
+  lens.style.cssText = 'position: absolute; pointer-events: none; display:none; width:120px;height:120px;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.35);z-index:4000;background:#fff;';
   const zoomImg = document.createElement('img');
+  zoomImg.style.position = 'relative';
   lens.appendChild(zoomImg);
   document.body.appendChild(lens);
 
-  document.addEventListener('mousemove', e => {
-    if (!zoomEnabled) return;
-    const target = e.target.closest('img, .magnify-area');
-    if (!target) { lens.style.display = 'none'; return; }
-    lens.style.display = 'block';
-    const rect = target.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    lens.style.left = `${e.pageX - 60}px`;
-    lens.style.top = `${e.pageY - 60}px`;
-    if (target.tagName === 'IMG') {
-      zoomImg.src = target.src;
-      const scaleX = zoomImg.width / target.width;
-      const scaleY = zoomImg.height / target.height;
-      zoomImg.style.left = `${-x * scaleX + lens.offsetWidth / 2}px`;
-      zoomImg.style.top = `${-y * scaleY + lens.offsetHeight / 2}px`;
-    }
-  });
-});
-// === 🔧 MEJORAS DE PERSISTENCIA Y FUNCIONALIDAD ===
+  function enableZoom(){ zoomEnabled = true; showToast('🔍 Lupa activada'); speak('Lupa activada'); }
+  function disableZoom(){ zoomEnabled = false; showToast('❌ Lupa desactivada'); speak('Lupa desactivada'); lens.style.display='none'; }
 
-// 1️⃣ Mantener el estado del micrófono entre páginas
-window.addEventListener('beforeunload', () => {
-  sessionStorage.setItem('voiceListening', listening ? '1' : '0');
-});
-if (sessionStorage.getItem('voiceListening') === '1') {
-  setTimeout(() => startListening(), 600);
-}
-
-// 2️⃣ Permitir múltiples comandos de voz seguidos sin errores
-recog.addEventListener('result', () => {
-  try {
-    recog.stop(); // Reinicia internamente para aceptar comandos nuevos
-    setTimeout(() => {
-      if (listening) recog.start();
-    }, 800);
-  } catch (err) {
-    console.warn('Auto-restart speech error', err);
-  }
-});
-
-// 3️⃣ Ampliar la función de lupa a todo el contenido de la página
-(function enhanceZoom(){
-  const lens = document.querySelector('.magnify-lens');
-  const zoomImg = lens.querySelector('img');
-  document.addEventListener('mousemove', e => {
-    if (!zoomEnabled) return;
-    const x = e.pageX;
-    const y = e.pageY;
-    const scale = 1.8; // nivel de zoom
-    lens.style.display = 'block';
-    lens.style.left = `${x - lens.offsetWidth / 2}px`;
-    lens.style.top = `${y - lens.offsetHeight / 2}px`;
-
-    // Crea una vista aumentada del área bajo el cursor
-    html2canvas(document.body, {
-      x: x - 60,
-      y: y - 60,
-      width: 120,
-      height: 120,
-      scale: scale
-    }).then(canvas => {
-      zoomImg.src = canvas.toDataURL();
+  // load html2canvas lazily only when activating zoom
+  let html2canvasLoaded = !!window.html2canvas;
+  function ensureHtml2canvas(){
+    if (html2canvasLoaded) return Promise.resolve();
+    return new Promise((res,rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+      s.onload = () => { html2canvasLoaded = true; res(); };
+      s.onerror = () => rej(new Error('html2canvas load failed'));
+      document.head.appendChild(s);
     });
+  }
+
+  // Throttle with rAF + time limit
+  let lastCanvasTime = 0;
+  let pending = false;
+  document.addEventListener('mousemove', (e) => {
+    if (!zoomEnabled) return;
+    const now = performance.now();
+    if (now - lastCanvasTime < 120) return; // fps ~8
+    lastCanvasTime = now;
+    if (!html2canvasLoaded) {
+      pending = true;
+      ensureHtml2canvas().then(()=> { pending = false; /* next move will render */ }).catch(()=> { showToast('⚠️ No se pudo activar lupa'); disableZoom(); });
+      return;
+    }
+    // Render small area
+    const x = e.pageX, y = e.pageY;
+    const size = 140;
+    lens.style.left = `${x - size/2}px`;
+    lens.style.top = `${y - size/2}px`;
+    lens.style.display = 'block';
+    // use html2canvas on small area
+    window.html2canvas(document.body, { x: x - size/4, y: y - size/4, width: size/2, height: size/2, scale: 2 })
+      .then(canvas => {
+        zoomImg.src = canvas.toDataURL();
+        zoomImg.style.left = '0';
+        zoomImg.style.top = '0';
+        // free canvas (browser will GC when out of scope)
+      }).catch(err => {
+        console.warn('html2canvas error', err);
+      });
   });
-})();
 
-// Añade script html2canvas si no existe (para renderizar cualquier contenido)
-if (!window.html2canvas) {
-  const s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-  document.head.appendChild(s);
-}
-
+  // expose for debugging
+  window.__getScrollableContainer = findScrollableContainer;
+}); // DOMContentLoaded
 </script>
