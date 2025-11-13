@@ -68,285 +68,152 @@
     </div>
   </div>
 </nav>
-
-<style>
-/* Toast de notificaciones */
-#voiceToast {
-  position: fixed;
-  top: 80px;
-  right: 20px;
-  z-index: 3000;
-  background: rgba(0, 0, 0, 0.85);
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-  opacity: 0;
-  transition: opacity 0.4s ease;
+<style>/* Lente de zoom mejorada (Circular + siempre visible) */
+/* ============================================
+   LUPA — Circular y siempre encima
+   ============================================ */.magnify-lens {
+  position: fixed !important;
+  width: 140px;
+  height: 140px;
+  border-radius: 50% !important;
   pointer-events: none;
-}
-
-/* Lente de zoom mejorada */
-#magnifyLens {
-  position: fixed;
-  width: 200px;
-  height: 200px;
-  border: 3px solid rgba(74, 144, 226, 0.8);
-  border-radius: 50%;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
-  pointer-events: none;
-  display: none;
-  z-index: 9999;
   overflow: hidden;
+  z-index: 2147483647 !important;
+  display: none;
   background: #fff;
-  backdrop-filter: blur(2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+.magnify-lens img { position:absolute; top:0; left:0; transform-origin: top left; pointer-events:none; }
+.magnify-lens.active { display:block; opacity:1; }
+
+/* Forzar prioridad absoluta de la lupa sobre cualquier contexto */
+body .magnify-lens {
+  position: fixed !important;
+  z-index: 2147483647 !important; /* el máximo valor permitido por CSS */
 }
 
-#magnifyLens::after {
+
+.magnify-lens.active {
+  opacity: 1;
+}
+
+.magnify-lens::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   border-radius: 50%;
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.15);
   pointer-events: none;
 }
 
-#magnifyLens img {
+.magnify-lens img {
   position: absolute;
   top: 0;
   left: 0;
   pointer-events: none;
+  transform-origin: top left;
 }
 
-/* Indicador visual cuando zoom estÃ¡ activo */
-body.zoom-active {
-  cursor: crosshair !important;
+/* Botón de zoom activo (navbar) */
+#zoomBtn.active,
+#zoomBtn.btn-success {
+  background-color: rgba(74, 144, 226, 0.25) !important;
+  border-color: #4a90e2 !important;
+  color: #fff !important;
 }
 
-body.zoom-active * {
-  cursor: crosshair !important;
-}
-
-/* BotÃ³n de zoom activo */
-#zoomBtn.active {
-  background-color: rgba(74, 144, 226, 0.2);
-  border-color: #4a90e2;
-}
 </style>
 
 <script>
+  
+/* Refactor: Voice + Scroll + Slider + Lupa (throttled) */
 document.addEventListener('DOMContentLoaded', () => {
-  // ============================================
-  // CONFIGURACIÃ"N GENERAL
-  // ============================================
+  // ---- CONFIG / ELEMENTOS ----
   const voiceBtn = document.getElementById('voiceBtn');
-  const zoomBtn = document.getElementById('zoomBtn');
   const indicator = document.getElementById('voiceIndicator');
 
+  // Exponer listening globalmente para beforeunload y debugging
   window.voiceListening = false;
 
-  // Toast de notificaciones
+  // Toast accesible
   const toast = document.createElement('div');
   toast.id = 'voiceToast';
-  toast.setAttribute('role', 'status');
-  toast.setAttribute('aria-live', 'polite');
+  toast.setAttribute('role','status');
+  toast.setAttribute('aria-live','polite');
+  toast.style.cssText = 'position:fixed;top:80px;right:20px;z-index:3000;background:rgba(0,0,0,0.85);color:#fff;padding:10px 16px;border-radius:10px;font-size:0.95rem;opacity:0;transition:opacity .34s';
   document.body.appendChild(toast);
-
-  function showToast(msg) {
+  function showToast(msg){
     toast.textContent = msg;
     toast.style.opacity = '1';
     clearTimeout(toast._t);
-    toast._t = setTimeout(() => toast.style.opacity = '0', 3200);
+    toast._t = setTimeout(()=> toast.style.opacity = '0', 3200);
   }
 
-  // Normalize text
-  function normalize(s) {
-    return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\s]/g, '').trim();
-  }
+  // Normalize util
+  function normalize(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w\s]/g,'').trim(); }
 
-  // ============================================
-  // LUPA/ZOOM MEJORADA (SIN html2canvas)
-  // ============================================
-  let zoomEnabled = false;
-  const ZOOM_LEVEL = 2.5; // Factor de amplificaciÃ³n
-  const LENS_SIZE = 200; // TamaÃ±o de la lente
-
-  // Crear lente
-  const lens = document.createElement('div');
-  lens.id = 'magnifyLens';
-  document.body.appendChild(lens);
-
-  const lensImg = document.createElement('img');
-  lens.appendChild(lensImg);
-
-  function enableZoom() {
-    if (zoomEnabled) return;
-    zoomEnabled = true;
-    document.body.classList.add('zoom-active');
-    zoomBtn.classList.add('active');
-    zoomBtn.innerHTML = '<i class="fas fa-search-minus"></i>';
-    showToast('🔎 Lupa activada - Mueve el mouse');
-    speak('Lupa activada');
-  }
-
-  function disableZoom() {
-    if (!zoomEnabled) return;
-    zoomEnabled = false;
-    document.body.classList.remove('zoom-active');
-    zoomBtn.classList.remove('active');
-    zoomBtn.innerHTML = '<i class="fas fa-search-plus"></i>';
-    lens.style.display = 'none';
-    showToast('🔎 Lupa desactivada');
-    speak('Lupa desactivada');
-  }
-
-  // Toggle zoom con botÃ³n
-  if (zoomBtn) {
-    zoomBtn.addEventListener('click', () => {
-      zoomEnabled ? disableZoom() : enableZoom();
-    });
-  }
-
-  // Capturar screenshot de la pÃ¡gina completa (una sola vez)
-  let pageScreenshot = null;
-  let screenshotWidth = 0;
-  let screenshotHeight = 0;
-
-  async function capturePageScreenshot() {
-    try {
-      // Capturar la pÃ¡gina usando html2canvas
-      const canvas = await html2canvas(document.body, {
-        allowTaint: true,
-        useCORS: true,
-        scale: 1,
-        logging: false,
-        width: document.documentElement.scrollWidth,
-        height: document.documentElement.scrollHeight
-      });
-
-      pageScreenshot = canvas.toDataURL('image/png');
-      screenshotWidth = canvas.width;
-      screenshotHeight = canvas.height;
-
-      return true;
-    } catch (error) {
-      console.error('Error capturando screenshot:', error);
-      showToast('⚠️ Error al activar lupa');
-      disableZoom();
-      return false;
-    }
-  }
-
-  // Throttle para mousemove
-  let lastMoveTime = 0;
-  const THROTTLE_MS = 16; // ~60fps
-
-  document.addEventListener('mousemove', async (e) => {
-    if (!zoomEnabled) return;
-
-    const now = performance.now();
-    if (now - lastMoveTime < THROTTLE_MS) return;
-    lastMoveTime = now;
-
-    // Si no hay screenshot, capturarlo
-    if (!pageScreenshot) {
-      lens.style.display = 'none';
-      showToast('🔎 Capturando pagina...');
-      const success = await capturePageScreenshot();
-      if (!success) return;
-    }
-
-    // Mostrar lente
-    lens.style.display = 'block';
-
-    // Posicionar lente centrada en el cursor
-    const lensX = e.clientX - (LENS_SIZE / 2);
-    const lensY = e.clientY - (LENS_SIZE / 2);
-
-    lens.style.left = `${lensX}px`;
-    lens.style.top = `${lensY}px`;
-
-    // Calcular posiciÃ³n en la imagen original
-    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-
-    const sourceX = (e.clientX + scrollX) * ZOOM_LEVEL;
-    const sourceY = (e.clientY + scrollY) * ZOOM_LEVEL;
-
-    // Actualizar imagen
-    lensImg.src = pageScreenshot;
-    lensImg.style.width = `${screenshotWidth * ZOOM_LEVEL}px`;
-    lensImg.style.height = `${screenshotHeight * ZOOM_LEVEL}px`;
-    lensImg.style.left = `-${sourceX - (LENS_SIZE / 2)}px`;
-    lensImg.style.top = `-${sourceY - (LENS_SIZE / 2)}px`;
-  });
-
-  // Ocultar lente cuando el mouse sale de la ventana
-  document.addEventListener('mouseleave', () => {
-    if (zoomEnabled) {
-      lens.style.display = 'none';
-    }
-  });
-
-  // Limpiar screenshot al hacer scroll o resize
-  let resetTimeout;
-  function scheduleScreenshotReset() {
-    clearTimeout(resetTimeout);
-    resetTimeout = setTimeout(() => {
-      pageScreenshot = null;
-      if (zoomEnabled) {
-        showToast('Recapturando pagina...');
+  // Find scrollable container (light-weight)
+  function findScrollableContainer() {
+    if (document.scrollingElement && document.scrollingElement.scrollHeight > document.scrollingElement.clientHeight) return document.scrollingElement;
+    const selectors = ['main','.main-content','.container','.content','#content','.app','.page','.scrollable'];
+    for (const sel of selectors) {
+      const el = document.querySelector(sel);
+      if (el) {
+        try{
+          const s = window.getComputedStyle(el);
+          if ((/auto|scroll|overlay/).test(s.overflowY) && el.scrollHeight > el.clientHeight + 2) return el;
+        }catch(e){}
       }
-    }, 500);
+    }
+    // fallback to documentElement/body
+    if (document.documentElement && document.documentElement.scrollHeight > document.documentElement.clientHeight) return document.documentElement;
+    if (document.body && document.body.scrollHeight > document.body.clientHeight) return document.body;
+    return null;
   }
 
-  window.addEventListener('scroll', scheduleScreenshotReset);
-  window.addEventListener('resize', scheduleScreenshotReset);
-
-  // Desactivar zoom con ESC
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && zoomEnabled) {
-      disableZoom();
+  async function safeScrollBy(container, amount) {
+    if (!container) return false;
+    const before = container.scrollTop || 0;
+    try { container.scrollBy({ top: amount, behavior: 'smooth' }); } catch(e) { container.scrollTop = before + amount; }
+    await new Promise(res => setTimeout(res, 360));
+    const after = container.scrollTop || 0;
+    if (Math.abs(after - before) > 2) return true;
+    // fallback step scroll
+    const step = amount > 0 ? 100 : -100;
+    const steps = Math.ceil(Math.abs(amount)/Math.abs(step));
+    for (let i=0;i<steps;i++){
+      try{ container.scrollBy({top: step, behavior: 'auto'}); }catch(e){ container.scrollTop += step; }
+      await new Promise(res => setTimeout(res, 120));
     }
-  });
+    return Math.abs((container.scrollTop||0) - before) > 2;
+  }
 
-  // ============================================
-  // RECONOCIMIENTO DE VOZ
-  // ============================================
+  // Speech synthesis helper
   function speak(text) {
     if (!window.speechSynthesis) return;
     try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'es-CL';
-      window.speechSynthesis.speak(utterance);
-    } catch (e) {
-      console.warn('speak error', e);
-    }
+      window.speechSynthesis.cancel(); // prevent queue buildup
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'es-CL';
+      window.speechSynthesis.speak(u);
+    } catch(e){ console.warn('speak err', e); }
   }
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    if (voiceBtn) {
-      voiceBtn.addEventListener('click', () => {
-        alert('Reconocimiento por voz no soportado en este navegador.');
-      });
-    }
+    voiceBtn && voiceBtn.addEventListener('click', ()=> alert('Reconocimiento por voz no soportado en este navegador.'));
     return;
   }
 
+  // ---- RECOGNITION SETUP ----
   const recog = new SpeechRecognition();
   recog.lang = 'es-CL';
   recog.interimResults = false;
-  recog.continuous = true;
+  recog.continuous = true; // keep listening where supported
 
-  window.voiceListening = sessionStorage.getItem('voiceListening') === '1';
-
-  function updateUIListening(on) {
+  // State
+  window.voiceListening = sessionStorage.getItem('voiceListening') === '1'; // restore initial
+  function updateUIListening(on){
     window.voiceListening = !!on;
     if (!indicator || !voiceBtn) return;
     indicator.classList.toggle('visually-hidden', !on);
@@ -354,126 +221,360 @@ document.addEventListener('DOMContentLoaded', () => {
     voiceBtn.setAttribute('aria-pressed', String(on));
   }
 
-  function startListening() {
-    try {
+  // Start/stop helpers
+  function startListening(){
+    try{
       recog.start();
       updateUIListening(true);
-      showToast('🎙️ Escuchando...');
-    } catch (e) {
-      console.warn('startListening error', e);
-    }
+      showToast('🎤 Escuchando...');
+    }catch(e){ console.warn('startListening err', e); }
+  }
+  function stopListening(){
+    try{
+      recog.stop();
+      updateUIListening(false);
+      showToast('🛑 Micrófono detenido');
+    }catch(e){ console.warn('stopListening err', e); }
   }
 
-function stopListening() {
-  try {
-    recog.stop();
-    updateUIListening(false);
-    showToast('🎙️ Micrófono detenido');
-  } catch (e) {
-    console.warn('stopListening error', e);
-  }
-}
+  // button wiring
+  if (voiceBtn) voiceBtn.addEventListener('click', ()=> window.voiceListening ? stopListening() : startListening());
 
-  if (voiceBtn) {
-    voiceBtn.addEventListener('click', () => {
-      window.voiceListening ? stopListening() : startListening();
-    });
-  }
-
+  // Ensure we persist on unload (same scope)
   window.addEventListener('beforeunload', () => {
-    try {
-      sessionStorage.setItem('voiceListening', window.voiceListening ? '1' : '0');
-    } catch (e) {}
+    try { sessionStorage.setItem('voiceListening', window.voiceListening ? '1' : '0'); } catch(e){}
   });
 
+  // auto-restart if was listening
   if (window.voiceListening) {
-    setTimeout(() => startListening(), 600);
+    setTimeout(()=> startListening(), 600);
   }
 
+  // Robust end handler with small backoff
   let recogRestarting = false;
   recog.addEventListener('end', () => {
     if (!window.voiceListening) return;
     if (recogRestarting) return;
     recogRestarting = true;
-    setTimeout(() => {
-      try {
-        recog.start();
-      } catch (e) {
-        console.warn('recog restart', e);
-      }
+    setTimeout(()=> {
+      try { recog.start(); } catch(e){ console.warn('recog restart', e); }
       recogRestarting = false;
     }, 400);
   });
 
   recog.addEventListener('error', (e) => {
     console.error('SpeechRecognition error', e);
-    showToast('Error, microfono apagado');
+    showToast('⚠️ Error con micrófono');
     if (e && e.error === 'not-allowed') {
-      speak('Permisos de microfno denegados.');
+      speak('Permisos de micrófono denegados.');
       stopListening();
     }
   });
 
-  // ============================================
-  // COMANDOS DE VOZ
-  // ============================================
+  // ---- SLIDER / COMANDOS ----
+  const sliderCards = Array.from(document.querySelectorAll('.custom-carousel .card[data-command]'));
+  const sliderCommands = sliderCards.map(card => {
+    const link = card.querySelector('a.btn');
+    const title = card.querySelector('.title')?.innerText || 'Producto';
+    const phrases = (card.dataset.command || '').split('|').map(normalize);
+    return { el: link || card, url: link ? link.href : null, label: title, phrases };
+  });
+
+  // Single RESULT handler (no duplicates)
   recog.addEventListener('result', async (ev) => {
     try {
       const transcript = Array.from(ev.results).map(r => r[0].transcript).join(' ').trim();
       console.log('Voz detectada:', transcript);
-      showToast(`🎙️ "${transcript}"`);
+      showToast(`🎧 "${transcript}"`);
       const t = normalize(transcript);
 
-      // Comandos de navegaciÃ³n
-      if (/\b(hogar|inicio|home)\b/.test(t)) {
-        speak('Volviendo al inicio');
-        showToast('ðŸ  Inicio');
-        window.location.href = "{% url 'home.html' %}";
+      // SCROLL
+      if (/\b(bajar|abajo|scroll down|desplazar abajo|desplazar hacia abajo)\b/.test(t)) {
+        const container = findScrollableContainer();
+        if (!container) { speak('No encontré una área desplazable en esta página.'); showToast('⚠️ No hay área desplazable detectada'); return; }
+        const ok = await safeScrollBy(container, Math.round(container.clientHeight * 0.7));
+        if (ok) { speak('Desplazando hacia abajo'); showToast('⬇️ Bajando'); } else { speak('No pude desplazar la página'); showToast('⚠️ Scroll no disponible'); }
         return;
       }
-if (/\b(carrito)\b/.test(t)) {
-  speak('Abriendo carrito');
-  showToast('🛒 Carrito');
-  window.location.href = "{% url 'carrito' %}";
-  return;
-}
-
-if (/\b(tienda|productos)\b/.test(t)) {
-  speak('Abriendo tienda');
-  showToast('🛍️ Tienda');
-  window.location.href = "{% url 'tienda' %}";
-  return;
-}
-
-if (/\b(foro)\b/.test(t)) {
-  speak('Abriendo foro');
-  showToast('💬 Foro');
-  window.location.href = "{% url 'foro' %}";
-  return;
-}
-
-      // Comandos de lupa
-      if (/\b(lupa|zoom|acercar|activar lupa)\b/.test(t)) {
-        enableZoom();
-        return;
-      }
-      if (/\b(desactivar lupa|quitar lupa|alejar)\b/.test(t)) {
-        disableZoom();
+      if (/\b(subir|arriba|scroll up|desplazar arriba|desplazar hacia arriba)\b/.test(t)) {
+        const container = findScrollableContainer();
+        if (!container) { speak('No encontré una área desplazable en esta página.'); showToast('⚠️ No hay área desplazable detectada'); return; }
+        const ok = await safeScrollBy(container, -Math.round(container.clientHeight * 0.7));
+        if (ok) { speak('Desplazando hacia arriba'); showToast('⬆️ Subiendo'); } else { speak('No pude desplazar la página'); showToast('⚠️ Scroll no disponible'); }
         return;
       }
 
-      speak('No entendo­ el comando.');
+      // NAVIGATION (conserva tus tags Django)
+      if (/\b(hogar|inicio|ir a inicio|pagina principal|home)\b/.test(t)) { speak('Volviendo al inicio'); showToast('🏠 Abriendo inicio'); window.location.href = "{% url 'home.html' %}"; return; }
+      if (/\b(carrito|mi carrito|abrir carrito)\b/.test(t)) { speak('Abriendo carrito'); showToast('🛒 Abriendo carrito'); window.location.href = "{% url 'carrito' %}"; return; }
+      if (/\b(asistente|chat|abrir asistente|asistente virtual)\b/.test(t)) { speak('Abriendo asistente'); showToast('💬 Abriendo asistente'); window.location.href = "{% url 'chat' %}"; return; }
+      if (/\b(tienda|productos|catalogo|ver tienda)\b/.test(t)) { speak('Abriendo tienda'); showToast('🛍️ Abriendo tienda'); window.location.href = "{% url 'tienda' %}"; return; }
+      if (/\b(foro|abrir foro|ver foro)\b/.test(t)) { speak('Abriendo foro'); showToast('💭 Abriendo foro'); window.location.href = "{% url 'foro' %}"; return; }
+      if (/\b(agregar producto|subir producto|nuevo producto|agregar)\b/.test(t)) { speak('Abriendo página para agregar producto'); showToast('➕ Agregar producto'); window.location.href = "{% url 'agregar' %}"; return; }
+      if (/\b(perfil|mi perfil|usuario|ver perfil)\b/.test(t)) { speak('Abriendo perfil de usuario'); showToast('👤 Perfil'); window.location.href = "{% url 'perfil' %}"; return; }
+      if (/\b(iniciar sesion|login|entrar)\b/.test(t)) { speak('Abriendo inicio de sesión'); showToast('🔐 Iniciar sesión'); window.location.href = "{% url 'login' %}"; return; }
+      if (/\b(crear cuenta|registrarme|registro|nuevo usuario)\b/.test(t)) { speak('Abriendo página de registro'); showToast('🧾 Crear cuenta'); window.location.href = "{% url 'registro' %}"; return; }
+      if (/\b(cerrar sesion|salir|logout)\b/.test(t)) { speak('Cerrando sesión'); showToast('🚪 Cerrando sesión'); window.location.href = "#"; return; }
+
+      // SLIDER MATCH
+      let matched = null;
+      for (const cmd of sliderCommands) {
+        if (cmd.phrases.some(p => t === p || t.includes(p) || p.includes(t))) { matched = cmd; break; }
+      }
+      if (matched) {
+        speak(`Abriendo ${matched.label}`);
+        showToast(`✅ ${matched.label}`);
+        if (matched.url) window.location.href = matched.url; else matched.el.click();
+        return;
+      }
+
+      // LUPA toggle
+      if (/\b(lupa|activar lupa|zoom|acercar)\b/.test(t)) { enableZoom(); return; }
+      if (/\b(desactivar lupa|quitar lupa|alejar|desactivar zoom)\b/.test(t)) { disableZoom(); return; }
+
+      speak('No entendí el comando. Prueba decir "bajar" o "subir".');
     } catch (err) {
       console.error('result handler error', err);
     }
   });
 
-  // Cargar html2canvas dinÃ¡micamente
-  if (!window.html2canvas) {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-    script.async = true;
-    document.head.appendChild(script);
+  // Allow quick restart pattern but debounced to avoid invalidstate
+  let lastResultAt = 0;
+  recog.addEventListener('result', () => {
+    const now = Date.now();
+    if (now - lastResultAt < 700) return; // ignore if results too frequent
+    lastResultAt = now;
+    // avoid forcing stop/start here — rely on end handler/backoff
+  });
+
+  // ---- LUPA (REEMPLAZADA: improved lens using single screenshot + zoom math) ----
+  // Reemplazamos la implementación anterior por una que toma UN screenshot completo
+  // (con html2canvas) una vez y luego usa un <img> dentro de una lente para mostrar
+  // el área ampliada. Esto es más eficiente que render repetidos de html2canvas por movimiento.
+
+  let zoomEnabled = false;
+  const ZOOM_LEVEL = 2.5; // factor de amplificación
+  const LENS_SIZE = 140; // tamaño de la lente en px
+
+  // Crear lente (se sobrescribe si ya existiera)
+  let lensEl = document.getElementById('magnifyLens');
+  if (lensEl) lensEl.remove();
+  const lens = document.createElement('div');
+  lens.id = 'magnifyLens';
+  lens.style.cssText = `position:absolute;pointer-events:none;display:none;width:${LENS_SIZE}px;height:${LENS_SIZE}px;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.35);z-index:4000;background:#fff;`;
+  const zoomImg = document.createElement('img');
+  zoomImg.style.position = 'absolute';
+  zoomImg.style.left = '0';
+  zoomImg.style.top = '0';
+  lens.appendChild(zoomImg);
+  document.body.appendChild(lens);
+
+  // Screenshot cache
+  let pageScreenshot = null;
+  let screenshotWidth = 0;
+  let screenshotHeight = 0;
+  let lastMoveTime = 0;
+  const THROTTLE_MS = 16; // ~60fps cap
+
+  async function capturePageScreenshot(){
+    try{
+      // ensure html2canvas lib is loaded
+      await ensureHtml2canvas();
+      // capture full page
+      const canvas = await window.html2canvas(document.body, {
+        allowTaint: true,
+        useCORS: true,
+        scale: 1,
+        logging: false,
+        width: document.documentElement.scrollWidth,
+        height: document.documentElement.scrollHeight
+      });
+      pageScreenshot = canvas.toDataURL('image/png');
+      screenshotWidth = canvas.width;
+      screenshotHeight = canvas.height;
+      return true;
+    }catch(err){
+      console.warn('capturePageScreenshot error', err);
+      showToast('⚠️ Error al activar lupa');
+      disableZoom();
+      return false;
+    }
   }
+// ---- LUPA (REEMPLAZADA: screenshot único + lente sin duplicados) ----
+/*
+  Implementación única de lupa que:
+  - evita duplicados de variables
+  - captura UNA vez la página con html2canvas (lazy)
+  - usa un <div> lente con un <img> escalado
+  - invalida cache al hacer scroll/resize
+*/
+(function(){
+  // variables encapsuladas para evitar conflictos
+  let _zoomEnabled = false;
+  const _ZOOM_LEVEL = 2.5;
+  const _LENS_SIZE = 140;
+  const LENS_ID = 'magnifyLens_v2';
+
+  // si existiera una lente antigua, la removemos (seguro)
+  const existing = document.getElementById(LENS_ID);
+  if (existing) existing.remove();
+
+  const lens = document.createElement('div');
+  lens.id = LENS_ID;
+  lens.style.cssText = `position:absolute;pointer-events:none;display:none;width:${_LENS_SIZE}px;height:${_LENS_SIZE}px;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.35);z-index:4000;background:#fff;`;
+  const zoomImg = document.createElement('img');
+  zoomImg.style.position = 'absolute';
+  zoomImg.style.left = '0';
+  zoomImg.style.top = '0';
+  lens.appendChild(zoomImg);
+  document.body.appendChild(lens);
+
+  // cache screenshot
+  let pageScreenshot = null;
+  let screenshotWidth = 0;
+  let screenshotHeight = 0;
+  let lastMoveTime = 0;
+  const THROTTLE_MS = 16;
+
+  async function ensureHtml2canvasSafe(){
+    if (window.html2canvas) return;
+    return new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+      s.onload = () => res();
+      s.onerror = () => rej(new Error('html2canvas load failed'));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function capturePageScreenshot(){
+    try{
+      await ensureHtml2canvasSafe();
+      const canvas = await window.html2canvas(document.body, {
+        allowTaint: true,
+        useCORS: true,
+        scale: 1,
+        logging: false,
+        width: document.documentElement.scrollWidth,
+        height: document.documentElement.scrollHeight
+      });
+      pageScreenshot = canvas.toDataURL('image/png');
+      screenshotWidth = canvas.width;
+      screenshotHeight = canvas.height;
+      return true;
+    }catch(err){
+      console.warn('capturePageScreenshot error', err);
+      showToast && showToast('⚠️ Error al activar lupa');
+      // si existe la función global disableZoom (en tu script original) la llamamos,
+      // sino simplemente escondemos la lente localmente
+      if (typeof window.disableZoom === 'function') window.disableZoom();
+      else { lens.style.display = 'none'; _zoomEnabled = false; }
+      return false;
+    }
+  }
+
+  // funciones públicas que el resto del script puede invocar
+  window.enableZoom = function(){
+    if (_zoomEnabled) return;
+    _zoomEnabled = true;
+    lens.style.display = 'none';
+    showToast && showToast('🔍 Lupa activada - mueve el mouse');
+    speak && speak('Lupa activada');
+    // capture will happen lazily on first mousemove
+  };
+
+  window.disableZoom = function(){
+    if (!_zoomEnabled) return;
+    _zoomEnabled = false;
+    lens.style.display = 'none';
+    pageScreenshot = null;
+    showToast && showToast('❌ Lupa desactivada');
+    speak && speak('Lupa desactivada');
+  };
+
+  document.addEventListener('mousemove', async (e) => {
+    if (!_zoomEnabled) return;
+    const now = performance.now();
+    if (now - lastMoveTime < THROTTLE_MS) return;
+    lastMoveTime = now;
+
+    if (!pageScreenshot){
+      lens.style.display = 'none';
+      showToast && showToast('🔎 Capturando página...');
+      const ok = await capturePageScreenshot();
+      if (!ok) return;
+    }
+
+    lens.style.display = 'block';
+    const lensX = e.clientX - (_LENS_SIZE / 2);
+    const lensY = e.clientY - (_LENS_SIZE / 2);
+    lens.style.left = `${lensX}px`;
+    lens.style.top = `${lensY}px`;
+
+    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+    const sourceX = (e.clientX + scrollX) * _ZOOM_LEVEL;
+    const sourceY = (e.clientY + scrollY) * _ZOOM_LEVEL;
+
+    zoomImg.src = pageScreenshot;
+    zoomImg.style.width = `${screenshotWidth * _ZOOM_LEVEL}px`;
+    zoomImg.style.height = `${screenshotHeight * _ZOOM_LEVEL}px`;
+    zoomImg.style.left = `-${Math.round(sourceX - (_LENS_SIZE/2))}px`;
+    zoomImg.style.top = `-${Math.round(sourceY - (_LENS_SIZE/2))}px`;
+  });
+
+  document.addEventListener('mouseleave', () => {
+    if (_zoomEnabled) lens.style.display = 'none';
+  });
+
+  let resetTimeout;
+  function scheduleScreenshotReset(){
+    clearTimeout(resetTimeout);
+    resetTimeout = setTimeout(()=>{
+      pageScreenshot = null;
+      if (_zoomEnabled) showToast && showToast('🔄 Recapturando página...');
+    }, 500);
+  }
+  window.addEventListener('scroll', scheduleScreenshotReset);
+  window.addEventListener('resize', scheduleScreenshotReset);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && _zoomEnabled) window.disableZoom();
+  });
+})();
+ // ---- FIN LUPA REEMPLAZADA ----
+
+
+
+  // expose for debugging
+  window.__getScrollableContainer = findScrollableContainer;
+}); // DOMContentLoaded
+// ============================================
+// BOTÓN DE LUPA EN NAVBAR
+// ============================================
+
+document.addEventListener("DOMContentLoaded", () => {
+  const zoomBtn = document.getElementById("zoomBtn");
+  if (!zoomBtn) return;
+
+  let lupaActiva = false;
+
+  zoomBtn.addEventListener("click", () => {
+    lupaActiva = !lupaActiva;
+
+    if (lupaActiva) {
+      enableZoom();
+      zoomBtn.classList.add("btn-success");
+      zoomBtn.classList.remove("btn-outline-light");
+      zoomBtn.title = "Desactivar lupa";
+    } else {
+      disableZoom();
+      zoomBtn.classList.remove("btn-success");
+      zoomBtn.classList.add("btn-outline-light");
+      zoomBtn.title = "Activar lupa";
+    }
+  });
 });
+
 </script>
