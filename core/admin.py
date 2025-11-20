@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import DetallePedidos, Direcciones, Pedidos, Productos, Usuarios
+from .models import DetallePedidos, Direcciones, Pedidos, Productos
 
 # Register your models here.
 
@@ -7,6 +7,6 @@ from .models import DetallePedidos, Direcciones, Pedidos, Productos, Usuarios
 class DetallePedidosAdmin(admin.ModelAdmin):
     pass
 
-@admin.register(Usuarios)
-class UsuariosAdmin(admin.ModelAdmin):
+@admin.register(Productos)
+class ProductosAdmin(admin.ModelAdmin):
     pass

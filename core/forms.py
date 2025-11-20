@@ -1,4 +1,5 @@
 from django import forms
+<<<<<<< Updated upstream
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import Usuario
 
@@ -157,3 +158,45 @@ class LoginForm(AuthenticationForm):
             except Usuario.DoesNotExist:
                 pass
         return username
+=======
+from .models import Perfil
+from django.contrib.auth.models import User
+
+class RegistroForm(forms.ModelForm):
+    class Meta:
+        model = Perfil
+        fields = ['phone', 'dob', 'preferred_contact', 'accessibility_needs', 'role', 'avatar']
+        widgets = {
+            'dob': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    def clean_dob(self):
+        dob = self.cleaned_data.get('dob')
+        if not dob:
+            return None
+        return dob
+
+
+# --------------------------------------------------
+# FORMULARIO LOGIN
+# --------------------------------------------------
+class LoginForm(forms.Form):
+    identifier = forms.CharField(
+        label="Usuario o correo",
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Usuario o correo',
+            'class': 'form-control'
+        })
+    )
+    password = forms.CharField(
+        label="Contraseña",
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Contraseña',
+            'class': 'form-control'
+        })
+    )
+    remember_me = forms.BooleanField(
+        required=False,
+        label="Recordarme"
+    )
+>>>>>>> Stashed changes
