@@ -6,12 +6,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
   <div class="container-fluid">
-<<<<<<< Updated upstream
-    <a class="navbar-brand" href="{% url 'home.html' %}" data-command="hogar|inicio|ir a inicio|pÃ¡gina principal">
-=======
-    <!-- Marca / Hogar -->
-    <a class="navbar-brand" href="{% url 'home' %}" data-command="hogar|inicio|ir a inicio|página principal">
->>>>>>> Stashed changes
+    <a class="navbar-brand" href="{% url 'home' %}" data-command="hogar|inicio|ir a inicio|pÃ¡gina principal">
       <i class="fas fa-home"></i> Hogar
     </a>
 
@@ -55,12 +50,8 @@
 
       <!-- MicrÃ³fono + Lupa -->
       <div class="d-flex align-items-center me-3">
-<<<<<<< Updated upstream
-        <button id="voiceBtn" class="btn btn-outline-light me-2" type="button" title="Navegar por voz">
-=======
         <button id="voiceBtn" class="btn btn-outline-light me-2" type="button" title="Navegar por voz"
           aria-pressed="false">
->>>>>>> Stashed changes
           <i class="fas fa-microphone"></i>
         </button>
         <button id="zoomBtn" class="btn btn-outline-light me-2" type="button" title="Activar lupa">
@@ -70,12 +61,6 @@
       </div>
 
       <ul class="navbar-nav mb-2 mb-lg-0">
-<<<<<<< Updated upstream
-        <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'perfil' %}"><i class="fas fa-user"></i> Usuario</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'registro' %}"><i class="fas fa-user-plus"></i> Crear Cuenta</a></li>
-=======
 
         {% if user.is_authenticated %}
 
@@ -111,12 +96,10 @@
 
         {% endif %}
 
->>>>>>> Stashed changes
       </ul>
     </div>
   </div>
 </nav>
-<<<<<<< Updated upstream
 <style>/* Lente de zoom mejorada (Circular + siempre visible) */
 /* ============================================
    LUPA — Circular y siempre encima
@@ -354,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // NAVIGATION (conserva tus tags Django)
-      if (/\b(hogar|inicio|ir a inicio|pagina principal|home)\b/.test(t)) { speak('Volviendo al inicio'); showToast('🏠 Abriendo inicio'); window.location.href = "{% url 'home.html' %}"; return; }
+      if (/\b(hogar|inicio|ir a inicio|pagina principal|home)\b/.test(t)) { speak('Volviendo al inicio'); showToast('🏠 Abriendo inicio'); window.location.href = "{% url 'home' %}"; return; }
       if (/\b(carrito|mi carrito|abrir carrito)\b/.test(t)) { speak('Abriendo carrito'); showToast('🛒 Abriendo carrito'); window.location.href = "{% url 'carrito' %}"; return; }
       if (/\b(asistente|chat|abrir asistente|asistente virtual)\b/.test(t)) { speak('Abriendo asistente'); showToast('💬 Abriendo asistente'); window.location.href = "{% url 'chat' %}"; return; }
       if (/\b(tienda|productos|catalogo|ver tienda)\b/.test(t)) { speak('Abriendo tienda'); showToast('🛍️ Abriendo tienda'); window.location.href = "{% url 'tienda' %}"; return; }
@@ -625,243 +608,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-=======
-
-<style>
-  #voiceToast {
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    z-index: 3000;
-    background: rgba(0, 0, 0, 0.85);
-    color: #fff;
-    padding: 10px 16px;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-
-  /* --- LUPA (NUEVO) --- */
-  .magnify-area {
-    position: relative;
-    display: inline-block;
-    cursor: zoom-in;
-  }
-
-  .magnify-lens {
-    position: absolute;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    border-radius: 50%;
-    width: 120px;
-    height: 120px;
-    overflow: hidden;
-    display: none;
-    pointer-events: none;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
-    z-index: 3000;
-  }
-
-  .magnify-lens img {
-    position: absolute;
-    width: 200%;
-    height: auto;
-    transform: translate(-50%, -50%);
-  }
-</style>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const voiceBtn = document.getElementById('voiceBtn');
-    const indicator = document.getElementById('voiceIndicator');
-
-    // toast simple
-    const toast = document.createElement('div');
-    toast.id = 'voiceToast';
-    toast.style.cssText = 'position:fixed;top:80px;right:20px;z-index:3000;background:rgba(0,0,0,0.85);color:#fff;padding:10px 16px;border-radius:10px;font-size:0.95rem;opacity:0;transition:opacity .34s';
-    document.body.appendChild(toast);
-    function showToast(msg) { toast.textContent = msg; toast.style.opacity = '1'; clearTimeout(toast._t); toast._t = setTimeout(() => toast.style.opacity = '0', 3200); }
-
-    // util normalizar
-    function normalize(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\s]/g, '').trim(); }
-
-    function findScrollableContainer() {
-      if (document.scrollingElement && document.scrollingElement.scrollHeight > document.scrollingElement.clientHeight) {
-        return document.scrollingElement;
-      }
-      const candidates = Array.from(document.querySelectorAll('body, html, main, .main-content, .container, .content, #content, .app, .page, .scrollable'));
-      for (const el of candidates) {
-        try {
-          const style = window.getComputedStyle(el);
-          const overflowY = style.overflowY;
-          if ((overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay') && el.scrollHeight > el.clientHeight + 2) {
-            return el;
-          }
-        } catch (e) { }
-      }
-      const all = Array.from(document.body.querySelectorAll('*'));
-      for (const el of all) {
-        try {
-          const hasScrollable = el.scrollHeight > el.clientHeight + 2;
-          const style = window.getComputedStyle(el);
-          if (hasScrollable && /auto|scroll|overlay/.test(style.overflowY)) return el;
-        } catch (e) { }
-      }
-      if (document.documentElement && document.documentElement.scrollHeight > document.documentElement.clientHeight) return document.documentElement;
-      if (document.body && document.body.scrollHeight > document.body.clientHeight) return document.body;
-      return null;
-    }
-
-    async function safeScrollBy(container, amount) {
-      if (!container) return false;
-      const before = container.scrollTop ?? 0;
-      try { container.scrollBy({ top: amount, behavior: 'smooth' }); } catch (e) { container.scrollTop = (container.scrollTop || 0) + amount; }
-      await new Promise(res => setTimeout(res, 350));
-      const after = container.scrollTop ?? 0;
-      if (Math.abs(after - before) > 2) return true;
-      const step = amount > 0 ? 100 : -100;
-      const steps = Math.ceil(Math.abs(amount) / Math.abs(step));
-      for (let i = 0; i < steps; i++) {
-        try { container.scrollBy({ top: step, behavior: 'auto' }); } catch (e) { container.scrollTop += step; }
-        await new Promise(res => setTimeout(res, 120));
-      }
-      return (Math.abs((container.scrollTop ?? 0) - before) > 2);
-    }
-
-    function speak(text) {
-      if (!window.speechSynthesis) return;
-      try {
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = 'es-CL';
-        window.speechSynthesis.speak(u);
-      } catch (e) { console.warn('speak err', e); }
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      voiceBtn.addEventListener('click', () => alert('Reconocimiento por voz no soportado en este navegador.'));
-      return;
-    }
-    const recog = new SpeechRecognition();
-    recog.lang = 'es-CL';
-    recog.interimResults = false;
-    recog.continuous = true;
-
-    let listening = false;
-    function startListening() { try { recog.start(); listening = true; indicator.classList.remove('visually-hidden'); voiceBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>'; showToast('🎤 Escuchando...'); } catch (e) { console.warn(e); } }
-    function stopListening() { try { recog.stop(); listening = false; indicator.classList.add('visually-hidden'); voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>'; showToast('🛑 Micrófono detenido'); } catch (e) { console.warn(e); } }
-    voiceBtn.addEventListener('click', () => listening ? stopListening() : startListening());
-    recog.addEventListener('end', () => { if (listening) setTimeout(() => { try { recog.start(); } catch (e) { } }, 350); });
-
-    // --- INTEGRACIÓN DE SLIDER ---
-    const sliderCards = Array.from(document.querySelectorAll('.custom-carousel .card[data-command]'));
-    const sliderCommands = sliderCards.map(card => {
-      const link = card.querySelector('a.btn');
-      const title = card.querySelector('.title')?.innerText || 'Producto';
-      const phrases = (card.dataset.command || '').split('|').map(normalize);
-      return { el: link || card, url: link ? link.href : null, label: title, phrases };
-    });
-
-    recog.addEventListener('result', async (ev) => {
-      const transcript = Array.from(ev.results).map(r => r[0].transcript).join(' ').trim();
-      console.log('Voz detectada:', transcript);
-      showToast(`🎧 "${transcript}"`);
-      const t = normalize(transcript);
-
-      if (/\b(bajar|abajo|scroll down|desplazar abajo|desplazar hacia abajo)\b/.test(t)) {
-        const container = findScrollableContainer();
-        if (!container) { speak('No encontré una área desplazable en esta página.'); showToast('⚠️ No hay área desplazable detectada'); return; }
-        const ok = await safeScrollBy(container, Math.round(container.clientHeight * 0.7));
-        if (ok) { speak('Desplazando hacia abajo'); showToast('⬇️ Bajando'); } else { speak('No pude desplazar la página'); showToast('⚠️ Scroll no disponible'); }
-        return;
-      }
-      if (/\b(subir|arriba|scroll up|desplazar arriba|desplazar hacia arriba)\b/.test(t)) {
-        const container = findScrollableContainer();
-        if (!container) { speak('No encontré una área desplazable en esta página.'); showToast('⚠️ No hay área desplazable detectada'); return; }
-        const ok = await safeScrollBy(container, -Math.round(container.clientHeight * 0.7));
-        if (ok) { speak('Desplazando hacia arriba'); showToast('⬆️ Subiendo'); } else { speak('No pude desplazar la página'); showToast('⚠️ Scroll no disponible'); }
-        return;
-      }
-
-      // ---- COMANDOS DE NAVEGACIÓN ----
-      if (/\b(hogar|inicio|ir a inicio|pagina principal|home)\b/.test(t)) { speak('Volviendo al inicio'); showToast('🏠 Abriendo inicio'); window.location.href = "{% url 'home' %}"; return; }
-      if (/\b(tienda)\b/.test(t)) { speak('Abriendo tienda'); showToast('⏳ Abriendo tienda'); window.location.href = "{% url 'tienda' %}"; return; }
-      if (/\b(carrito|mi carrito)\b/.test(t)) { speak('Abriendo carrito'); showToast('⏳ Abriendo carrito'); window.location.href = "{% url 'carrito' %}"; return; }
-
-      // --- SLIDER PRODUCTOS ---
-      let matched = null;
-      for (const cmd of sliderCommands) {
-        if (cmd.phrases.some(p => t === p || t.includes(p) || p.includes(t))) {
-          matched = cmd;
-          break;
-        }
-      }
-      if (matched) {
-        speak(`Abriendo ${matched.label}`);
-        showToast(`✅ ${matched.label}`);
-        if (matched.url) window.location.href = matched.url;
-        else matched.el.click();
-        return;
-      }
-
-      // --- LUPA ---
-      if (/\b(lupa|activar lupa|zoom|acercar)\b/.test(t)) { enableZoom(); return; }
-      if (/\b(desactivar lupa|quitar lupa|alejar|desactivar zoom)\b/.test(t)) { disableZoom(); return; }
-
-      speak('No entendí el comando. Prueba decir "bajar" o "subir".');
-    });
-
-    recog.addEventListener('error', (e) => {
-      console.error('SpeechRecognition error', e);
-      showToast('⚠️ Error con micrófono');
-      if (e.error === 'not-allowed') { speak('Permisos de micrófono denegados.'); stopListening(); }
-    });
-
-    window.__getScrollableContainer = findScrollableContainer;
-
-    // --- LUPA ---
-    let zoomEnabled = false;
-
-    function enableZoom() { zoomEnabled = true; showToast('🔍 Lupa activada'); speak('Lupa activada'); }
-    function disableZoom() { zoomEnabled = false; showToast('❌ Lupa desactivada'); speak('Lupa desactivada'); }
-
-    const lens = document.createElement('div');
-    lens.className = 'magnify-lens';
-    const zoomImg = document.createElement('img');
-    lens.appendChild(zoomImg);
-    document.body.appendChild(lens);
-
-    document.addEventListener('mousemove', e => {
-      if (!zoomEnabled) return;
-      const target = e.target.closest('img, .magnify-area');
-      if (!target) { lens.style.display = 'none'; return; }
-      lens.style.display = 'block';
-      const rect = target.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      lens.style.left = `${e.pageX - 60}px`;
-      lens.style.top = `${e.pageY - 60}px`;
-      if (target.tagName === 'IMG') {
-        zoomImg.src = target.src;
-        const scaleX = zoomImg.width / target.width;
-        const scaleY = zoomImg.height / target.height;
-        zoomImg.style.left = `${-x * scaleX + lens.offsetWidth / 2}px`;
-        zoomImg.style.top = `${-y * scaleY + lens.offsetHeight / 2}px`;
-      }
-    });
-  });
-  // === 🔧 MEJORAS DE PERSISTENCIA Y FUNCIONALIDAD ===
-
-  // 1️⃣ Mantener el estado del micrófono entre páginas
-  window.addEventListener('beforeunload', () => {
-    sessionStorage.setItem('voiceListening', listening ? '1' : '0');
-  });
-  if (sessionStorage.getItem('voiceListening') === '1') {
-    setTimeout(() => startListening(), 600);
-  }
->>>>>>> Stashed changes
 
   // 2️⃣ Permitir múltiples comandos de voz seguidos sin errores
   recog.addEventListener('result', () => {

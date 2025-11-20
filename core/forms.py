@@ -1,14 +1,19 @@
 from django import forms
-<<<<<<< Updated upstream
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import Usuario
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from .models import Perfil
 
+
+# ============================================================
+# FORMULARIO DE REGISTRO
+# ============================================================
 class RegistroForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Correo electrÃ³nico'
+            'placeholder': 'Correo electrónico'
         })
     )
     first_name = forms.CharField(
@@ -27,15 +32,15 @@ class RegistroForm(UserCreationForm):
             'placeholder': 'Apellidos'
         })
     )
-    telefono = forms.CharField(
+    phone = forms.CharField(
         max_length=20,
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'TelÃ©fono'
+            'placeholder': 'Teléfono'
         })
     )
-    fecha_nacimiento = forms.DateField(
+    dob = forms.DateField(
         required=False,
         widget=forms.DateInput(attrs={
             'class': 'form-control',
@@ -48,8 +53,8 @@ class RegistroForm(UserCreationForm):
             'class': 'form-check-input'
         })
     )
-    
-    # Campos de direcciÃ³n
+
+    # Campos de dirección
     calle = forms.CharField(
         max_length=150,
         required=False,
@@ -71,7 +76,7 @@ class RegistroForm(UserCreationForm):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'RegiÃ³n'
+            'placeholder': 'Región'
         })
     )
     codigo_postal = forms.CharField(
@@ -79,16 +84,25 @@ class RegistroForm(UserCreationForm):
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'CÃ³digo Postal'
+            'placeholder': 'Código Postal'
         })
     )
-    
+    role = forms.ChoiceField(
+        choices=[('cliente', 'Cliente'), ('vendedor', 'Vendedor'), ('admin', 'Administrador')],
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    avatar = forms.ImageField(
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
+    )
+
     class Meta:
-        model = Usuario
+        model = User
         fields = [
             'username', 'email', 'first_name', 'last_name',
-            'password1', 'password2', 'telefono', 'fecha_nacimiento',
-            'acepta_marketing', 'calle', 'ciudad', 'region', 'codigo_postal'
+            'password1', 'password2'
         ]
         widgets = {
             'username': forms.TextInput(attrs={
@@ -96,107 +110,79 @@ class RegistroForm(UserCreationForm):
                 'placeholder': 'Nombre de usuario'
             }),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['password1'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'ContraseÃ±a'
+            'placeholder': 'Contraseña'
         })
         self.fields['password2'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'Confirmar contraseÃ±a'
+            'placeholder': 'Confirmar contraseña'
         })
-    
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if Usuario.objects.filter(email=email).exists():
-            raise forms.ValidationError('Este correo ya estÃ¡ registrado.')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError('Este correo ya está registrado.')
         return email
-    
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data.get('first_name', '')
         user.last_name = self.cleaned_data.get('last_name', '')
-        user.telefono = self.cleaned_data.get('telefono', '')
-        user.fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
-        user.acepta_marketing = self.cleaned_data.get('acepta_marketing', False)
-        user.calle = self.cleaned_data.get('calle', '')
-        user.ciudad = self.cleaned_data.get('ciudad', '')
-        user.region = self.cleaned_data.get('region', '')
-        user.codigo_postal = self.cleaned_data.get('codigo_postal', '')
-        
         if commit:
             user.save()
+
+            # Crear perfil relacionado
+            perfil = Perfil.objects.create(
+                user=user,
+                phone=self.cleaned_data.get('phone', ''),
+                dob=self.cleaned_data.get('dob'),
+                preferred_contact='email',  # por defecto
+                role=self.cleaned_data.get('role', 'cliente'),
+                avatar=self.cleaned_data.get('avatar'),
+                accessibility_needs='',
+            )
+
         return user
 
 
+# ============================================================
+# FORMULARIO DE LOGIN
+# ============================================================
 class LoginForm(AuthenticationForm):
     username = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Nombre de usuario o correo',
-            'id': 'email'
+            'placeholder': 'Nombre de usuario o correo'
         })
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'ContraseÃ±a',
-            'id': 'password'
+            'placeholder': 'Contraseña'
         })
     )
-    
-    def clean_username(self):
-        username = self.cleaned_data.get('username')
-        # Permitir login con email o username
-        if '@' in username:
-            try:
-                user = Usuario.objects.get(email=username)
-                return user.username
-            except Usuario.DoesNotExist:
-                pass
-        return username
-=======
-from .models import Perfil
-from django.contrib.auth.models import User
 
-class RegistroForm(forms.ModelForm):
-    class Meta:
-        model = Perfil
-        fields = ['phone', 'dob', 'preferred_contact', 'accessibility_needs', 'role', 'avatar']
-        widgets = {
-            'dob': forms.DateInput(attrs={'type': 'date'}),
-        }
+    def clean(self):
+        username_or_email = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
 
-    def clean_dob(self):
-        dob = self.cleaned_data.get('dob')
-        if not dob:
-            return None
-        return dob
+        if username_or_email and password:
+            # Soporta login con email
+            if '@' in username_or_email:
+                try:
+                    user_obj = User.objects.get(email=username_or_email)
+                    username_or_email = user_obj.username
+                except User.DoesNotExist:
+                    pass
 
+            user = authenticate(username=username_or_email, password=password)
+            if user is None:
+                raise forms.ValidationError("Usuario o contraseña incorrectos.")
+            self.user_cache = user
 
-# --------------------------------------------------
-# FORMULARIO LOGIN
-# --------------------------------------------------
-class LoginForm(forms.Form):
-    identifier = forms.CharField(
-        label="Usuario o correo",
-        widget=forms.TextInput(attrs={
-            'placeholder': 'Usuario o correo',
-            'class': 'form-control'
-        })
-    )
-    password = forms.CharField(
-        label="Contraseña",
-        widget=forms.PasswordInput(attrs={
-            'placeholder': 'Contraseña',
-            'class': 'form-control'
-        })
-    )
-    remember_me = forms.BooleanField(
-        required=False,
-        label="Recordarme"
-    )
->>>>>>> Stashed changes
+        return self.cleaned_data
