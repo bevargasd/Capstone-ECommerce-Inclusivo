@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User   # <-- usamos Django auth
+from django.contrib.auth.models import User   # usamos Django auth
 
 
 # ============================================================
@@ -95,6 +95,10 @@ class DetallePedidos(models.Model):
     def __str__(self):
         return f"Detalle #{self.id_detalle} - Pedido {self.id_pedido_id}"
 
+
+# ============================================================
+# PERFIL DE USUARIO
+# ============================================================
 
 class Perfil(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

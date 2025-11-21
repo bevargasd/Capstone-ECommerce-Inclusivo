@@ -35,16 +35,16 @@ def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            identifier = form.cleaned_data['identifier']
+            identifier = form.cleaned_data['identifier'].strip().lower()
             password = form.cleaned_data['password']
             remember_me = form.cleaned_data['remember_me']
 
             # Intentar buscar por username o email
             try:
-                user_obj = User.objects.get(username=identifier)
+                user_obj = User.objects.get(username__iexact=identifier)
             except User.DoesNotExist:
                 try:
-                    user_obj = User.objects.get(email=identifier)
+                    user_obj = User.objects.get(email__iexact=identifier)
                 except User.DoesNotExist:
                     user_obj = None
 
@@ -53,10 +53,11 @@ def login_view(request):
                 if user:
                     login(request, user)
                     if remember_me:
-                        request.session.set_expiry(60 * 60 * 24 * 30)  # 30 días
+                        request.session.set_expiry(60 * 60 * 24 * 30)
                     else:
-                        request.session.set_expiry(0)  # cerrar sesión al cerrar el navegador
+                        request.session.set_expiry(0)
                     return redirect('home')
+
             messages.error(request, 'Usuario o contraseña incorrectos.')
     else:
         form = LoginForm()
@@ -66,80 +67,18 @@ def login_view(request):
 # Registro
 def registro(request):
     if request.method == "POST":
-        # --------------------------
-        # DATOS DEL USUARIO
-        # --------------------------
-        username = request.POST.get("username")
-        email = request.POST.get("email")
-        first_name = request.POST.get("first_name")
-        last_name = request.POST.get("last_name")
-        
-        password1 = request.POST.get("password1")
-        password2 = request.POST.get("password2")
-
-        if password1 != password2:
-            messages.error(request, "Las contraseñas no coinciden.")
-            return redirect("registro")
-
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "El usuario ya existe.")
-            return redirect("registro")
-
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "El correo ya está registrado.")
-            return redirect("registro")
-
-        # Crear usuario Django
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password1,
-            first_name=first_name,
-            last_name=last_name
-        )
-
-        # --------------------------
-        # PERFIL
-        # --------------------------
-        # Usamos RegistroForm solo para limpiar y validar datos
         form = RegistroForm(request.POST, request.FILES)
         if form.is_valid():
-            perfil = form.save(commit=False)
-            perfil.user = user
-            perfil.save()
+            user = form.save()
+            login(request, user)
+            return redirect("home")
         else:
-            # Si algo falla en la validación del form, borramos el user creado
-            user.delete()
             for error in form.errors.values():
                 messages.error(request, error)
             return redirect("registro")
-
-        # --------------------------
-        # DIRECCIÓN
-        # --------------------------
-        street = request.POST.get("street")
-        city = request.POST.get("city")
-        state = request.POST.get("state")
-        zip_code = request.POST.get("zip_code")
-        country = request.POST.get("country")
-
-        if street or city or state or zip_code or country:
-            Direcciones.objects.create(
-                id_usuario=user,
-                calle=street,
-                ciudad=city,
-                region=state,
-                codigo_postal=zip_code,
-                pais=country
-            )
-
-        # --------------------------
-        # LOGIN AUTOMÁTICO
-        # --------------------------
-        login(request, user)
-        return redirect("home")
-
-    return render(request, "form_registro.html")
+    else:
+        form = RegistroForm()
+    return render(request, "form_registro.html", {"form": form})
 
 def cerrar_sesion(request):
     logout(request)

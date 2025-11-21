@@ -1,13 +1,9 @@
+# core/forms.py
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
 from .models import Perfil
 
-
-# ============================================================
-# FORMULARIO DE REGISTRO
-# ============================================================
 class RegistroForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
@@ -19,113 +15,44 @@ class RegistroForm(UserCreationForm):
     first_name = forms.CharField(
         max_length=30,
         required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Nombres'
-        })
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombres'})
     )
     last_name = forms.CharField(
         max_length=30,
         required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Apellidos'
-        })
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Apellidos'})
     )
-    phone = forms.CharField(
+    telefono = forms.CharField(
         max_length=20,
         required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Teléfono'
-        })
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Teléfono'})
     )
-    dob = forms.DateField(
+    fecha_nacimiento = forms.DateField(
         required=False,
-        widget=forms.DateInput(attrs={
-            'class': 'form-control',
-            'type': 'date'
-        })
-    )
-    acepta_marketing = forms.BooleanField(
-        required=False,
-        widget=forms.CheckboxInput(attrs={
-            'class': 'form-check-input'
-        })
-    )
-
-    # Campos de dirección
-    calle = forms.CharField(
-        max_length=150,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Calle'
-        })
-    )
-    ciudad = forms.CharField(
-        max_length=100,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ciudad'
-        })
-    )
-    region = forms.CharField(
-        max_length=100,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Región'
-        })
-    )
-    codigo_postal = forms.CharField(
-        max_length=20,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Código Postal'
-        })
-    )
-    role = forms.ChoiceField(
-        choices=[('cliente', 'Cliente'), ('vendedor', 'Vendedor'), ('admin', 'Administrador')],
-        required=True,
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-
-    avatar = forms.ImageField(
-        required=False,
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
     )
 
     class Meta:
         model = User
-        fields = [
-            'username', 'email', 'first_name', 'last_name',
-            'password1', 'password2'
-        ]
+        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+        error_messages = {
+            'username': {
+                'unique': "Este nombre de usuario ya existe."
+            },
+        }
         widgets = {
-            'username': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Nombre de usuario'
-            }),
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de usuario'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['password1'].widget.attrs.update({
-            'class': 'form-control',
-            'placeholder': 'Contraseña'
-        })
-        self.fields['password2'].widget.attrs.update({
-            'class': 'form-control',
-            'placeholder': 'Confirmar contraseña'
-        })
+        self.fields['password1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Contraseña'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Confirmar contraseña'})
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
-            raise forms.ValidationError('Este correo ya está registrado.')
+            raise forms.ValidationError("Este correo ya está registrado.")
         return email
 
     def save(self, commit=True):
@@ -135,54 +62,36 @@ class RegistroForm(UserCreationForm):
         user.last_name = self.cleaned_data.get('last_name', '')
         if commit:
             user.save()
-
-            # Crear perfil relacionado
-            perfil = Perfil.objects.create(
+            # crear perfil básico
+            Perfil.objects.get_or_create(
                 user=user,
-                phone=self.cleaned_data.get('phone', ''),
-                dob=self.cleaned_data.get('dob'),
-                preferred_contact='email',  # por defecto
-                role=self.cleaned_data.get('role', 'cliente'),
-                avatar=self.cleaned_data.get('avatar'),
-                accessibility_needs='',
+                defaults={
+                    'phone': self.cleaned_data.get('telefono', ''),
+                    'dob': self.cleaned_data.get('fecha_nacimiento')
+                }
             )
-
         return user
 
 
-# ============================================================
-# FORMULARIO DE LOGIN
-# ============================================================
-class LoginForm(AuthenticationForm):
-    username = forms.CharField(
+class LoginForm(forms.Form):
+    identifier = forms.CharField(
+        label='Usuario o correo',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Nombre de usuario o correo'
+            'placeholder': 'usuario o correo'
         })
     )
     password = forms.CharField(
+        label='Contraseña',
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Contraseña'
+            'placeholder': 'contraseña'
         })
     )
+    remember_me = forms.BooleanField(required=False, initial=False, widget=forms.CheckboxInput())
 
-    def clean(self):
-        username_or_email = self.cleaned_data.get('username')
-        password = self.cleaned_data.get('password')
-
-        if username_or_email and password:
-            # Soporta login con email
-            if '@' in username_or_email:
-                try:
-                    user_obj = User.objects.get(email=username_or_email)
-                    username_or_email = user_obj.username
-                except User.DoesNotExist:
-                    pass
-
-            user = authenticate(username=username_or_email, password=password)
-            if user is None:
-                raise forms.ValidationError("Usuario o contraseña incorrectos.")
-            self.user_cache = user
-
-        return self.cleaned_data
+    def clean_identifier(self):
+        identifier = self.cleaned_data.get('identifier', '').strip()
+        if not identifier:
+            raise forms.ValidationError('Ingrese usuario o correo.')
+        return identifier
