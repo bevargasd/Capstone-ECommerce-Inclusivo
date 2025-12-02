@@ -85,6 +85,11 @@ def cerrar_sesion(request):
     return redirect("home")
 
 
+def cerrar_sesion(request):
+    logout(request)
+    return redirect("home")
+
+
 def perfil(request):
     return render(request, "plantillas/perfil.html")
 
