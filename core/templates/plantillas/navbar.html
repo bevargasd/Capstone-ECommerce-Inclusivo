@@ -18,11 +18,6 @@
     <div class="collapse navbar-collapse" id="mainNavbar">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'chat' %}" data-command="asistente|chat">
-            <i class="fas fa-comments"></i> Asistente
-          </a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" href="{% url 'tienda' %}" data-command="tienda|productos">
             <i class="fas fa-box"></i> Tienda
           </a>
@@ -305,6 +300,8 @@
       if (/\b(hogar|inicio|ir a inicio|pagina principal|home)\b/.test(t)) { speak('Volviendo al inicio'); showToast('🏠 Abriendo inicio'); window.location.href = "{% url 'home' %}"; return; }
       if (/\b(tienda)\b/.test(t)) { speak('Abriendo tienda'); showToast('⏳ Abriendo tienda'); window.location.href = "{% url 'tienda' %}"; return; }
       if (/\b(carrito|mi carrito)\b/.test(t)) { speak('Abriendo carrito'); showToast('⏳ Abriendo carrito'); window.location.href = "{% url 'carrito' %}"; return; }
+      if (/\b(pedidos|mis pedidos|mis compras)\b/.test(t)) { speak('Abriendo mis pedidos'); showToast('⏳ Abriendo mis pedidos'); window.location.href = "{% url 'mis_pedidos' %}"; return; }
+
 
       // --- SLIDER PRODUCTOS ---
       const allCommands = [...sliderCommands, ...productCommands, ...categoryCommands];
