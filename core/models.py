@@ -135,7 +135,11 @@ class Perfil(models.Model):
     dob = models.DateField(blank=True, null=True)
     preferred_contact = models.CharField(max_length=20, blank=True, null=True)
     accessibility_needs = models.TextField(blank=True, null=True)
-    role = models.CharField(max_length=20, default="cliente")
+    role = models.CharField(max_length=20, 
+                            choices=[("cliente", "Cliente"),
+                                     ("trabajador", "Trabajador"),
+                                     ("admin", "Administrador")],
+                            default="cliente")
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
 
     def __str__(self):

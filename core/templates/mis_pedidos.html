@@ -1,0 +1,53 @@
+{% load static %}
+{% include 'plantillas/dame_head.html' %}
+{% include 'plantillas/navbar.html' %}
+
+<body>
+
+<div class="container mt-5 pt-4">
+
+    <h2 class="text-center text-white mb-4">
+        <i class="fas fa-box-open"></i> Historial de Compras
+    </h2>
+
+    {% if orders %}
+        {% for order in orders %}
+        <div class="bg-light p-4 rounded shadow mb-4">
+
+            <h4>
+                Orden #{{ order.id }}
+                <span class="badge badge-success">Pagada</span>
+            </h4>
+
+            <p class="mb-1"><strong>Fecha:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+            <p><strong>Total:</strong> ${{ order.total }}</p>
+
+            <a href="{% url 'detalle_orden' order.id %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-eye"></i> Ver detalle
+            </a>
+
+            <a href="{% url 'descargar_comprobante' order.id %}" 
+               class="btn btn-secondary btn-sm">
+                <i class="fas fa-file-download"></i> PDF
+            </a>
+
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="bg-light p-4 rounded shadow text-center">
+            <h4>No tienes compras realizadas aún.</h4>
+        </div>
+    {% endif %}
+
+</div>
+
+<style>
+body {
+    background: linear-gradient(rgba(0,0,0,0.85),rgba(0,0,0,0.85)),
+        url("https://images.squarespace-cdn.com/content/v1/5fc81a6a2a8c727fea28e86a/1617632758936-0I729579XQL2AQSM30U1/AdobeStock_320378863.jpeg")
+        center/cover fixed;
+}
+</style>
+
+</body>
+</html>

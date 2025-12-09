@@ -27,11 +27,13 @@
             <i class="fas fa-box"></i> Tienda
           </a>
         </li>
+        {% if user.is_authenticated and user.perfil.role == "trabajador" %}
         <li class="nav-item">
           <a class="nav-link" href="{% url 'agregar' %}" data-command="agregar producto">
-            <i class="fas fa-plus"></i> Agregar Producto
+            <i class="fas fa-plus"></i> Agregar Productos
           </a>
         </li>
+        {% endif %}}
       </ul>
 
       <form class="d-flex me-3" role="search">
@@ -55,22 +57,31 @@
 
         {% if user.is_authenticated %}
 
-        <!-- CERRAR SESIÓN -->
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'logout' %}">
-            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-          </a>
-        </li>
-
         <!-- PERFIL -->
         <li class="nav-item">
           <a class="nav-link" href="{% url 'perfil' %}">
             <i class="fas fa-user"></i> Perfil
           </a>
         </li>
+
+        <!-- MIS PEDIDOS -->
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'mis_pedidos' %}" data-command="mis pedidos|pedidos|historial de compras">
+            <i class="fa-solid fa-box-archive"></i> Mis Pedidos
+          </a>
+        </li>
+
+        <!-- CARRITO -->
         <li class="nav-item">
           <a class="nav-link" href="{% url 'carrito' %}" data-command="carrito|mi carrito|ver carrito">
             <i class="fa-solid fa-cart-shopping"></i> Carrito
+          </a>
+        </li>
+        
+        <!-- CERRAR SESIÓN -->
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'logout' %}">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
           </a>
         </li>
 
@@ -144,35 +155,35 @@
 <script>
   const productCommands = [
     {% for p in productos %}
-      {
-        label: "{{ p.nombre|escapejs }}",
-        phrases: [
-          "{{ p.nombre|lower|escapejs }}",
-          "{{ p.nombre|lower|slugify|escapejs }}",
-        ],
+  {
+    label: "{{ p.nombre|escapejs }}",
+      phrases: [
+        "{{ p.nombre|lower|escapejs }}",
+        "{{ p.nombre|lower|slugify|escapejs }}",
+      ],
         url: "/producto/{{ p.id_producto }}/"
-      }{% if not forloop.last %},{% endif %}
-    {% endfor %}
+  } {% if not forloop.last %}, {% endif %}
+  {% endfor %}
   ];
 </script>
 <script>
-const categoryCommands = [
+  const categoryCommands = [
     {% for categoria in categorias %}
-    {
-        label: "{{ categoria.nombre|lower }}",
-        phrases: [
-            "{{ categoria.nombre|lower }}",
-            "ir a {{ categoria.nombre|lower }}",
-            "mostrar {{ categoria.nombre|lower }}"
-        ],
+  {
+    label: "{{ categoria.nombre|lower }}",
+      phrases: [
+        "{{ categoria.nombre|lower }}",
+        "ir a {{ categoria.nombre|lower }}",
+        "mostrar {{ categoria.nombre|lower }}"
+      ],
         action: () => {
-            const el = document.getElementById("categoria-{{ categoria.id }}");
-            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+          const el = document.getElementById("categoria-{{ categoria.id }}");
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
         }
-    }{% if not forloop.last %},{% endif %}
-    {% endfor %}
+  } {% if not forloop.last %}, {% endif %}
+  {% endfor %}
 ];
-console.log("cat commands:", categoryCommands);
+  console.log("cat commands:", categoryCommands);
 </script>
 
 <script>
@@ -299,49 +310,49 @@ console.log("cat commands:", categoryCommands);
       const allCommands = [...sliderCommands, ...productCommands, ...categoryCommands];
 
       function handleSpeech(t) {
-  const text = t.toLowerCase().trim();
-  let matched = null;
+        const text = t.toLowerCase().trim();
+        let matched = null;
 
-  for (const cmd of commands) {
-    if (cmd.phrases.some(p => text.includes(p))) {
-      matched = cmd;
-      break;
-    }
-  }
+        for (const cmd of commands) {
+          if (cmd.phrases.some(p => text.includes(p))) {
+            matched = cmd;
+            break;
+          }
+        }
 
-  if (matched) {
-    speak(`abriendo ${matched.label}`);
-    showToast(`✅ ${matched.label}`);
+        if (matched) {
+          speak(`abriendo ${matched.label}`);
+          showToast(`✅ ${matched.label}`);
 
-    if (matched.url) {
-      window.location.href = matched.url;
-    }
-    else if (matched.action) {
-      matched.action();
-    }
-    else if (matched.el) {
-      matched.el.click();
-    }
+          if (matched.url) {
+            window.location.href = matched.url;
+          }
+          else if (matched.action) {
+            matched.action();
+          }
+          else if (matched.el) {
+            matched.el.click();
+          }
 
-    return;
-  }
-}
+          return;
+        }
+      }
 
-let matched = null;
-for (const cmd of allCommands) {
-  if (cmd.phrases.some(p => t === p || t.includes(p) || p.includes(t))) {
-    matched = cmd;
-    break;
-  }
-}
+      let matched = null;
+      for (const cmd of allCommands) {
+        if (cmd.phrases.some(p => t === p || t.includes(p) || p.includes(t))) {
+          matched = cmd;
+          break;
+        }
+      }
 
-if (matched) {
-  speak(`Abriendo ${matched.label}`);
-  showToast(`✅ ${matched.label}`);
-  if (matched.url) window.location.href = matched.url;
-  else matched.el?.click();
-  return;
-}
+      if (matched) {
+        speak(`Abriendo ${matched.label}`);
+        showToast(`✅ ${matched.label}`);
+        if (matched.url) window.location.href = matched.url;
+        else matched.el?.click();
+        return;
+      }
 
       // --- LUPA ---
       if (/\b(lupa|activar lupa|zoom|acercar)\b/.test(t)) { enableZoom(); return; }
@@ -359,243 +370,243 @@ if (matched) {
     window.__getScrollableContainer = findScrollableContainer;
 
     // ---- LUPA (REEMPLAZADA: improved lens using single screenshot + zoom math) ----
-  // Reemplazamos la implementación anterior por una que toma UN screenshot completo
-  // (con html2canvas) una vez y luego usa un <img> dentro de una lente para mostrar
-  // el área ampliada. Esto es más eficiente que render repetidos de html2canvas por movimiento.
+    // Reemplazamos la implementación anterior por una que toma UN screenshot completo
+    // (con html2canvas) una vez y luego usa un <img> dentro de una lente para mostrar
+    // el área ampliada. Esto es más eficiente que render repetidos de html2canvas por movimiento.
 
-  let zoomEnabled = false;
-  const ZOOM_LEVEL = 2.5; // factor de amplificación
-  const LENS_SIZE = 140; // tamaño de la lente en px
+    let zoomEnabled = false;
+    const ZOOM_LEVEL = 2.5; // factor de amplificación
+    const LENS_SIZE = 140; // tamaño de la lente en px
 
-  // Crear lente (se sobrescribe si ya existiera)
-  let lensEl = document.getElementById('magnifyLens');
-  if (lensEl) lensEl.remove();
-  const lens = document.createElement('div');
-  lens.id = 'magnifyLens';
-  lens.style.cssText = `position:absolute;pointer-events:none;display:none;width:${LENS_SIZE}px;height:${LENS_SIZE}px;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.35);z-index:4000;background:#fff;`;
-  const zoomImg = document.createElement('img');
-  zoomImg.style.position = 'absolute';
-  zoomImg.style.left = '0';
-  zoomImg.style.top = '0';
-  lens.appendChild(zoomImg);
-  document.body.appendChild(lens);
+    // Crear lente (se sobrescribe si ya existiera)
+    let lensEl = document.getElementById('magnifyLens');
+    if (lensEl) lensEl.remove();
+    const lens = document.createElement('div');
+    lens.id = 'magnifyLens';
+    lens.style.cssText = `position:absolute;pointer-events:none;display:none;width:${LENS_SIZE}px;height:${LENS_SIZE}px;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.35);z-index:4000;background:#fff;`;
+    const zoomImg = document.createElement('img');
+    zoomImg.style.position = 'absolute';
+    zoomImg.style.left = '0';
+    zoomImg.style.top = '0';
+    lens.appendChild(zoomImg);
+    document.body.appendChild(lens);
 
-  // Screenshot cache
-  let pageScreenshot = null;
-  let screenshotWidth = 0;
-  let screenshotHeight = 0;
-  let lastMoveTime = 0;
-  const THROTTLE_MS = 16; // ~60fps cap
+    // Screenshot cache
+    let pageScreenshot = null;
+    let screenshotWidth = 0;
+    let screenshotHeight = 0;
+    let lastMoveTime = 0;
+    const THROTTLE_MS = 16; // ~60fps cap
 
-  async function capturePageScreenshot(){
-    try{
-      // ensure html2canvas lib is loaded
-      await ensureHtml2canvas();
-      // capture full page
-      const canvas = await window.html2canvas(document.body, {
-        allowTaint: true,
-        useCORS: true,
-        scale: 1,
-        logging: false,
-        width: document.documentElement.scrollWidth,
-        height: document.documentElement.scrollHeight
-      });
-      pageScreenshot = canvas.toDataURL('image/png');
-      screenshotWidth = canvas.width;
-      screenshotHeight = canvas.height;
-      return true;
-    }catch(err){
-      console.warn('capturePageScreenshot error', err);
-      showToast('⚠️ Error al activar lupa');
-      disableZoom();
-      return false;
+    async function capturePageScreenshot() {
+      try {
+        // ensure html2canvas lib is loaded
+        await ensureHtml2canvas();
+        // capture full page
+        const canvas = await window.html2canvas(document.body, {
+          allowTaint: true,
+          useCORS: true,
+          scale: 1,
+          logging: false,
+          width: document.documentElement.scrollWidth,
+          height: document.documentElement.scrollHeight
+        });
+        pageScreenshot = canvas.toDataURL('image/png');
+        screenshotWidth = canvas.width;
+        screenshotHeight = canvas.height;
+        return true;
+      } catch (err) {
+        console.warn('capturePageScreenshot error', err);
+        showToast('⚠️ Error al activar lupa');
+        disableZoom();
+        return false;
+      }
     }
-  }
-// ---- LUPA (REEMPLAZADA: screenshot único + lente sin duplicados) ----
-/*
-  Implementación única de lupa que:
-  - evita duplicados de variables
-  - captura UNA vez la página con html2canvas (lazy)
-  - usa un <div> lente con un <img> escalado
-  - invalida cache al hacer scroll/resize
-*/
-(function(){
-  // variables encapsuladas para evitar conflictos
-  let _zoomEnabled = false;
-  const _ZOOM_LEVEL = 2.5;
-  const _LENS_SIZE = 140;
-  const LENS_ID = 'magnifyLens_v2';
+    // ---- LUPA (REEMPLAZADA: screenshot único + lente sin duplicados) ----
+    /*
+      Implementación única de lupa que:
+      - evita duplicados de variables
+      - captura UNA vez la página con html2canvas (lazy)
+      - usa un <div> lente con un <img> escalado
+      - invalida cache al hacer scroll/resize
+    */
+    (function () {
+      // variables encapsuladas para evitar conflictos
+      let _zoomEnabled = false;
+      const _ZOOM_LEVEL = 2.5;
+      const _LENS_SIZE = 140;
+      const LENS_ID = 'magnifyLens_v2';
 
-  // si existiera una lente antigua, la removemos (seguro)
-  const existing = document.getElementById(LENS_ID);
-  if (existing) existing.remove();
+      // si existiera una lente antigua, la removemos (seguro)
+      const existing = document.getElementById(LENS_ID);
+      if (existing) existing.remove();
 
-  const lens = document.createElement('div');
-  lens.id = LENS_ID;
-  lens.style.cssText = `position:absolute;pointer-events:none;display:none;width:${_LENS_SIZE}px;height:${_LENS_SIZE}px;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.35);z-index:4000;background:#fff;`;
-  const zoomImg = document.createElement('img');
-  zoomImg.style.position = 'absolute';
-  zoomImg.style.left = '0';
-  zoomImg.style.top = '0';
-  lens.appendChild(zoomImg);
-  document.body.appendChild(lens);
+      const lens = document.createElement('div');
+      lens.id = LENS_ID;
+      lens.style.cssText = `position:absolute;pointer-events:none;display:none;width:${_LENS_SIZE}px;height:${_LENS_SIZE}px;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.35);z-index:4000;background:#fff;`;
+      const zoomImg = document.createElement('img');
+      zoomImg.style.position = 'absolute';
+      zoomImg.style.left = '0';
+      zoomImg.style.top = '0';
+      lens.appendChild(zoomImg);
+      document.body.appendChild(lens);
 
-  // cache screenshot
-  let pageScreenshot = null;
-  let screenshotWidth = 0;
-  let screenshotHeight = 0;
-  let lastMoveTime = 0;
-  const THROTTLE_MS = 16;
+      // cache screenshot
+      let pageScreenshot = null;
+      let screenshotWidth = 0;
+      let screenshotHeight = 0;
+      let lastMoveTime = 0;
+      const THROTTLE_MS = 16;
 
-  async function ensureHtml2canvasSafe(){
-    if (window.html2canvas) return;
-    return new Promise((res, rej) => {
-      const s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-      s.onload = () => res();
-      s.onerror = () => rej(new Error('html2canvas load failed'));
-      document.head.appendChild(s);
+      async function ensureHtml2canvasSafe() {
+        if (window.html2canvas) return;
+        return new Promise((res, rej) => {
+          const s = document.createElement('script');
+          s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+          s.onload = () => res();
+          s.onerror = () => rej(new Error('html2canvas load failed'));
+          document.head.appendChild(s);
+        });
+      }
+
+      async function capturePageScreenshot() {
+        try {
+          await ensureHtml2canvasSafe();
+          const canvas = await window.html2canvas(document.body, {
+            allowTaint: true,
+            useCORS: true,
+            scale: 1,
+            logging: false,
+            width: document.documentElement.scrollWidth,
+            height: document.documentElement.scrollHeight
+          });
+          pageScreenshot = canvas.toDataURL('image/png');
+          screenshotWidth = canvas.width;
+          screenshotHeight = canvas.height;
+          return true;
+        } catch (err) {
+          console.warn('capturePageScreenshot error', err);
+          showToast && showToast('⚠️ Error al activar lupa');
+          // si existe la función global disableZoom (en tu script original) la llamamos,
+          // sino simplemente escondemos la lente localmente
+          if (typeof window.disableZoom === 'function') window.disableZoom();
+          else { lens.style.display = 'none'; _zoomEnabled = false; }
+          return false;
+        }
+      }
+
+      // funciones públicas que el resto del script puede invocar
+      window.enableZoom = function () {
+        if (_zoomEnabled) return;
+        _zoomEnabled = true;
+        lens.style.display = 'none';
+        showToast && showToast('🔍 Lupa activada - mueve el mouse');
+        speak && speak('Lupa activada');
+        // capture will happen lazily on first mousemove
+      };
+
+      window.disableZoom = function () {
+        if (!_zoomEnabled) return;
+        _zoomEnabled = false;
+        lens.style.display = 'none';
+        pageScreenshot = null;
+        showToast && showToast('❌ Lupa desactivada');
+        speak && speak('Lupa desactivada');
+      };
+
+      document.addEventListener('mousemove', async (e) => {
+        if (!_zoomEnabled) return;
+        const now = performance.now();
+        if (now - lastMoveTime < THROTTLE_MS) return;
+        lastMoveTime = now;
+
+        if (!pageScreenshot) {
+          lens.style.display = 'none';
+          showToast && showToast('🔎 Capturando página...');
+          const ok = await capturePageScreenshot();
+          if (!ok) return;
+        }
+
+        lens.style.display = 'block';
+        const lensX = e.clientX - (_LENS_SIZE / 2);
+        const lensY = e.clientY - (_LENS_SIZE / 2);
+        lens.style.left = `${lensX}px`;
+        lens.style.top = `${lensY}px`;
+
+        const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+        const sourceX = (e.clientX + scrollX) * _ZOOM_LEVEL;
+        const sourceY = (e.clientY + scrollY) * _ZOOM_LEVEL;
+
+        zoomImg.src = pageScreenshot;
+        zoomImg.style.width = `${screenshotWidth * _ZOOM_LEVEL}px`;
+        zoomImg.style.height = `${screenshotHeight * _ZOOM_LEVEL}px`;
+        zoomImg.style.left = `-${Math.round(sourceX - (_LENS_SIZE / 2))}px`;
+        zoomImg.style.top = `-${Math.round(sourceY - (_LENS_SIZE / 2))}px`;
+      });
+
+      document.addEventListener('mouseleave', () => {
+        if (_zoomEnabled) lens.style.display = 'none';
+      });
+
+      let resetTimeout;
+      function scheduleScreenshotReset() {
+        clearTimeout(resetTimeout);
+        resetTimeout = setTimeout(() => {
+          pageScreenshot = null;
+          if (_zoomEnabled) showToast && showToast('🔄 Recapturando página...');
+        }, 500);
+      }
+      window.addEventListener('scroll', scheduleScreenshotReset);
+      window.addEventListener('resize', scheduleScreenshotReset);
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && _zoomEnabled) window.disableZoom();
+      });
+    })();
+    // ---- FIN LUPA REEMPLAZADA ----
+
+    // === 🔧 MEJORAS DE PERSISTENCIA Y FUNCIONALIDAD ===
+
+    // 1️⃣ Mantener el estado del micrófono entre páginas
+    window.addEventListener('beforeunload', () => {
+      sessionStorage.setItem('voiceListening', listening ? '1' : '0');
     });
-  }
-
-  async function capturePageScreenshot(){
-    try{
-      await ensureHtml2canvasSafe();
-      const canvas = await window.html2canvas(document.body, {
-        allowTaint: true,
-        useCORS: true,
-        scale: 1,
-        logging: false,
-        width: document.documentElement.scrollWidth,
-        height: document.documentElement.scrollHeight
-      });
-      pageScreenshot = canvas.toDataURL('image/png');
-      screenshotWidth = canvas.width;
-      screenshotHeight = canvas.height;
-      return true;
-    }catch(err){
-      console.warn('capturePageScreenshot error', err);
-      showToast && showToast('⚠️ Error al activar lupa');
-      // si existe la función global disableZoom (en tu script original) la llamamos,
-      // sino simplemente escondemos la lente localmente
-      if (typeof window.disableZoom === 'function') window.disableZoom();
-      else { lens.style.display = 'none'; _zoomEnabled = false; }
-      return false;
+    if (sessionStorage.getItem('voiceListening') === '1') {
+      setTimeout(() => startListening(), 600);
     }
-  }
-
-  // funciones públicas que el resto del script puede invocar
-  window.enableZoom = function(){
-    if (_zoomEnabled) return;
-    _zoomEnabled = true;
-    lens.style.display = 'none';
-    showToast && showToast('🔍 Lupa activada - mueve el mouse');
-    speak && speak('Lupa activada');
-    // capture will happen lazily on first mousemove
-  };
-
-  window.disableZoom = function(){
-    if (!_zoomEnabled) return;
-    _zoomEnabled = false;
-    lens.style.display = 'none';
-    pageScreenshot = null;
-    showToast && showToast('❌ Lupa desactivada');
-    speak && speak('Lupa desactivada');
-  };
-
-  document.addEventListener('mousemove', async (e) => {
-    if (!_zoomEnabled) return;
-    const now = performance.now();
-    if (now - lastMoveTime < THROTTLE_MS) return;
-    lastMoveTime = now;
-
-    if (!pageScreenshot){
-      lens.style.display = 'none';
-      showToast && showToast('🔎 Capturando página...');
-      const ok = await capturePageScreenshot();
-      if (!ok) return;
-    }
-
-    lens.style.display = 'block';
-    const lensX = e.clientX - (_LENS_SIZE / 2);
-    const lensY = e.clientY - (_LENS_SIZE / 2);
-    lens.style.left = `${lensX}px`;
-    lens.style.top = `${lensY}px`;
-
-    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-
-    const sourceX = (e.clientX + scrollX) * _ZOOM_LEVEL;
-    const sourceY = (e.clientY + scrollY) * _ZOOM_LEVEL;
-
-    zoomImg.src = pageScreenshot;
-    zoomImg.style.width = `${screenshotWidth * _ZOOM_LEVEL}px`;
-    zoomImg.style.height = `${screenshotHeight * _ZOOM_LEVEL}px`;
-    zoomImg.style.left = `-${Math.round(sourceX - (_LENS_SIZE/2))}px`;
-    zoomImg.style.top = `-${Math.round(sourceY - (_LENS_SIZE/2))}px`;
-  });
-
-  document.addEventListener('mouseleave', () => {
-    if (_zoomEnabled) lens.style.display = 'none';
-  });
-
-  let resetTimeout;
-  function scheduleScreenshotReset(){
-    clearTimeout(resetTimeout);
-    resetTimeout = setTimeout(()=>{
-      pageScreenshot = null;
-      if (_zoomEnabled) showToast && showToast('🔄 Recapturando página...');
-    }, 500);
-  }
-  window.addEventListener('scroll', scheduleScreenshotReset);
-  window.addEventListener('resize', scheduleScreenshotReset);
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && _zoomEnabled) window.disableZoom();
-  });
-})();
- // ---- FIN LUPA REEMPLAZADA ----
-
-  // === 🔧 MEJORAS DE PERSISTENCIA Y FUNCIONALIDAD ===
-
-  // 1️⃣ Mantener el estado del micrófono entre páginas
-  window.addEventListener('beforeunload', () => {
-    sessionStorage.setItem('voiceListening', listening ? '1' : '0');
-  });
-  if (sessionStorage.getItem('voiceListening') === '1') {
-    setTimeout(() => startListening(), 600);
-  }
 
     // expose for debugging
-  window.__getScrollableContainer = findScrollableContainer;
-}); // DOMContentLoaded
+    window.__getScrollableContainer = findScrollableContainer;
+  }); // DOMContentLoaded
 
-// ============================================
-// BOTÓN DE LUPA EN NAVBAR
-// ============================================
+  // ============================================
+  // BOTÓN DE LUPA EN NAVBAR
+  // ============================================
 
-document.addEventListener("DOMContentLoaded", () => {
-  const zoomBtn = document.getElementById("zoomBtn");
-  if (!zoomBtn) return;
+  document.addEventListener("DOMContentLoaded", () => {
+    const zoomBtn = document.getElementById("zoomBtn");
+    if (!zoomBtn) return;
 
-  let lupaActiva = false;
+    let lupaActiva = false;
 
-  zoomBtn.addEventListener("click", () => {
-    lupaActiva = !lupaActiva;
+    zoomBtn.addEventListener("click", () => {
+      lupaActiva = !lupaActiva;
 
-    if (lupaActiva) {
-      enableZoom();
-      zoomBtn.classList.add("btn-success");
-      zoomBtn.classList.remove("btn-outline-light");
-      zoomBtn.title = "Desactivar lupa";
-    } else {
-      disableZoom();
-      zoomBtn.classList.remove("btn-success");
-      zoomBtn.classList.add("btn-outline-light");
-      zoomBtn.title = "Activar lupa";
-    }
+      if (lupaActiva) {
+        enableZoom();
+        zoomBtn.classList.add("btn-success");
+        zoomBtn.classList.remove("btn-outline-light");
+        zoomBtn.title = "Desactivar lupa";
+      } else {
+        disableZoom();
+        zoomBtn.classList.remove("btn-success");
+        zoomBtn.classList.add("btn-outline-light");
+        zoomBtn.title = "Activar lupa";
+      }
+    });
   });
-});
 
 
   // 2️⃣ Permitir múltiples comandos de voz seguidos sin errores

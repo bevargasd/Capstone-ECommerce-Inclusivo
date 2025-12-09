@@ -1,0 +1,74 @@
+{% load static %}
+{% include 'plantillas/dame_head.html' %}
+{% include 'plantillas/navbar.html' %}
+
+<body>
+
+<div class="container mt-5 pt-4">
+
+    <div class="bg-light p-4 rounded shadow text-center">
+
+        <h2 class="text-success">
+            <i class="fas fa-check-circle"></i> Pago Completado
+        </h2>
+
+        <p class="lead mt-3">
+            ¡Gracias por tu compra, {{ user.username }}!  
+        </p>
+
+        <h4 class="mt-4">Orden N° {{ order.id }}</h4>
+
+        <p><strong>Fecha:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+        <p><strong>Total pagado:</strong> ${{ order.total }}</p>
+
+        <hr>
+
+        <h4>Productos comprados</h4>
+
+        {% for item in order.items.all %}
+            <div class="d-flex align-items-center justify-content-center mb-3">
+
+                {% if item.producto.imagen_uno %}
+                <img src="{{ item.producto.imagen_uno.url }}" 
+                     style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-right:15px;">
+                {% endif %}
+
+                <div class="text-left">
+                    <strong>{{ item.producto.nombre }}</strong><br>
+                    Cantidad: {{ item.cantidad }}<br>
+                    Subtotal: ${{ item.total }}
+                </div>
+
+            </div>
+        {% endfor %}
+
+        <hr>
+
+        <a href="{% url 'mis_pedidos' %}" class="btn btn-primary mt-2">
+            <i class="fas fa-box"></i> Ver historial de compras
+        </a>
+
+        <a href="{% url 'descargar_comprobante' order.id %}" class="btn btn-secondary mt-2">
+            <i class="fas fa-file-download"></i> Descargar comprobante PDF
+        </a>
+
+        <br><br>
+
+        <a href="{% url 'tienda' %}" class="btn btn-outline-dark mt-3">
+            <i class="fas fa-arrow-left"></i> Volver a la tienda
+        </a>
+
+    </div>
+</div>
+
+<style>
+body {
+    background: linear-gradient(rgba(0,0,0,0.85),rgba(0,0,0,0.85)),
+        url("https://images.squarespace-cdn.com/content/v1/5fc81a6a2a8c727fea28e86a/1617632758936-0I729579XQL2AQSM30U1/AdobeStock_320378863.jpeg") 
+        center/cover fixed;
+    color: #000;
+}
+</style>
+
+</body>
+</html>

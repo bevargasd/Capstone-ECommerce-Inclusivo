@@ -19,5 +19,10 @@ urlpatterns = [
     path("actualizar-item/<int:id>/", views.actualizar_item, name="actualizar_item"),
     path("eliminar-item/<int:id>/", views.eliminar_item, name="eliminar_item"),
     path("agregar/<int:id>/", views.agregar_al_carrito, name="agregar_al_carrito"),
+    path("pago-completado-api/", views.pago_completado, name="pago_completado"),
+    path("pago-completado/<int:id>/", views.pago_completado_page, name="pago_completado_page"),
+    path("mis-pedidos/", views.mis_pedidos, name="mis_pedidos"),
+    path("orden/<int:id>/", views.detalle_orden, name="detalle_orden"),
+    path("orden/<int:id>/comprobante/", views.descargar_comprobante, name="descargar_comprobante"),
 
 ]

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
@@ -12,6 +13,8 @@ from django.utils import timezone
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from reportlab.pdfgen import canvas
+
 
 def home(request):
     productos = Productos.objects.all() 
@@ -45,7 +48,8 @@ def carrito(request):
     order.save()
 
     return render(request, "carrito.html", {
-        "order": order
+        "order": order,
+        "PAYPAL_CLIENT_ID": settings.PAYPAL_CLIENT_ID
     })
 
 # Chatbot
@@ -253,6 +257,89 @@ def eliminar_item(request, id):
     order.save()
 
     return redirect("carrito")
+
+@csrf_exempt
+def pago_completado(request):
+    if request.method != "POST":
+        return JsonResponse({"ok": False, "error": "Método no permitido"}, status=405)
+
+    data = json.loads(request.body)
+    paypal_order_id = data.get("paypal_order_id")
+
+    if not request.user.is_authenticated:
+        return JsonResponse({"ok": False, "error": "Usuario no autenticado"}, status=403)
+
+    try:
+        order = Order.objects.get(user=request.user, status="pending")
+    except Order.DoesNotExist:
+        return JsonResponse({"ok": False, "error": "No existe una orden pendiente"}, status=404)
+
+    # Marcar como pagada
+    order.status = "paid"
+    order.paypal_id = paypal_order_id
+    order.save()
+
+    return JsonResponse({
+        "ok": True,
+        "order_id": order.id
+    })
+
+
+def pago_completado_page(request, id):
+    order = get_object_or_404(Order, id=id)
+
+    if order.user != request.user:
+        return HttpResponse("No tienes permiso para ver esta orden.", status=403)
+
+    return render(request, "pago_completado.html", {
+        "order": order
+    })
+
+
+def mis_pedidos(request):
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    orders = Order.objects.filter(user=request.user, status="paid").order_by("-created_at")
+
+    return render(request, "mis_pedidos.html", {
+        "orders": orders
+    })
+
+def detalle_orden(request, id):
+    order = get_object_or_404(Order, id=id, user=request.user)
+
+    return render(request, "detalle_orden.html", {
+        "order": order
+    })
+
+def descargar_comprobante(request, id):
+    order = get_object_or_404(Order, id=id, user=request.user)
+
+    # Respuesta como PDF
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="orden_{order.id}.pdf"'
+
+    p = canvas.Canvas(response)
+    p.setFont("Helvetica", 14)
+    p.drawString(100, 800, f"Comprobante de Pago - Orden #{order.id}")
+    p.drawString(100, 780, f"Fecha: {order.created_at.strftime('%d/%m/%Y')}")
+    p.drawString(100, 760, f"Estado: {order.status}")
+    p.drawString(100, 740, f"Total: ${order.total}")
+
+    y = 700
+    p.setFont("Helvetica", 12)
+    p.drawString(100, y, "Productos:")
+    y -= 20
+
+    for item in order.items.all():
+        p.drawString(120, y, f"- {item.producto.nombre} x{item.cantidad} = ${item.total()}")
+        y -= 20
+
+    p.showPage()
+    p.save()
+
+    return response
 
 
 def agregar_al_carrito(request, id):
