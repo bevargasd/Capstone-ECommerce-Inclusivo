@@ -1,23 +1,52 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, render
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import Perfil, Direcciones
-from .forms import RegistroForm, LoginForm
+from .models import Order, OrderItem, Perfil, Direcciones, Productos, Categoria
+from .forms import RegistroForm, LoginForm, ProductoForm
 from django import forms
+from django.db.models import Q
+from django.utils import timezone
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 def home(request):
-    return render(request, 'home.html')
+    productos = Productos.objects.all() 
+    return render(request, "home.html", {"productos": productos})
 
 # Tienda
 def tienda(request):
-    return render(request, "tienda.html")
+    categorias = Categoria.objects.all()
+    productos = Productos.objects.all()
+
+    return render(request, 'tienda.html', {
+        'categorias': categorias,
+        'productos': productos
+    })
 
 # Carrito de compras
 def carrito(request):
-    return render(request, "carrito.html")
+
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    # Buscar la orden pendiente o crear una nueva
+    order, created = Order.objects.get_or_create(
+        user=request.user,
+        status="pending",
+        defaults={"total": 0}
+    )
+
+    # Recalcular el total
+    order.total = sum(item.total() for item in order.items.all())
+    order.save()
+
+    return render(request, "carrito.html", {
+        "order": order
+    })
 
 # Chatbot
 def chat(request):
@@ -100,9 +129,162 @@ def compara(request):
 # Publicaciones
 def publicaciones(request):
     return render(request, "publicacion.html")
-# Agregar productor
-def agregar(request):
-    return render(request, "form_agregar_productos.html")
+# Agregar productos
 
-def producto(request):
-    return render(request, "plantillas/producto.html")
+def agregar(request):
+    categorias = Categoria.objects.all()
+
+    if request.method == "POST":
+        form = ProductoForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            producto = form.save(commit=False)
+            producto.fecha_creacion = timezone.now()
+            producto.activo = True
+            producto.save()
+
+            messages.success(request, "Producto agregado correctamente.")
+
+        else:
+            messages.error(request, "Revisa los campos del formulario.")
+
+    else:
+        form = ProductoForm()
+
+    return render(request, "form_agregar_productos.html", {
+        "form": form,
+        "categorias": categorias,
+    })
+
+def producto(request, id):
+    try:
+        producto = Productos.objects.get(id_producto=id)
+    except Productos.DoesNotExist:
+        raise Http404("Producto no encontrado")
+
+    imagenes = []
+    if producto.imagen_uno:
+        imagenes.append(producto.imagen_uno.url)
+    if producto.imagen_dos:
+        imagenes.append(producto.imagen_dos.url)
+
+    return render(request, "plantillas/producto.html", {
+        "producto": producto,
+        "imagenes": imagenes
+    })
+
+@csrf_exempt
+def crear_orden(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Método no permitido"}, status=405)
+
+    data = json.loads(request.body)
+
+    items = data.get("items", [])
+    user_id = data.get("user_id", None)
+
+    if not items:
+        return JsonResponse({"error": "Carrito vacío"}, status=400)
+
+    # ============= VALIDACIONES =============
+    total_real = 0
+    productos_validos = []
+
+    for item in items:
+        try:
+            p = Productos.objects.get(id_producto=item["id"])
+        except Productos.DoesNotExist:
+            return JsonResponse({"error": f"Producto {item['id']} no existe"}, status=400)
+
+        cantidad = int(item["cantidad"])
+
+        if cantidad <= 0:
+            return JsonResponse({"error": "Cantidad inválida"}, status=400)
+
+        total_real += p.precio * cantidad
+
+        productos_validos.append({
+            "producto": p,
+            "cantidad": cantidad,
+            "precio": p.precio
+        })
+
+    # ============= CREAR LA ORDEN =============
+    order = Order.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+        total=total_real
+    )
+
+    # Crear items
+    for item in productos_validos:
+        OrderItem.objects.create(
+            order=order,
+            producto=item["producto"],
+            cantidad=item["cantidad"],
+            precio_unitario=item["precio"]
+        )
+
+    return JsonResponse({
+        "message": "Orden creada correctamente",
+        "order_id": order.id,
+        "total": total_real
+    })
+
+
+def actualizar_item(request, id):
+    item = OrderItem.objects.get(id=id)
+    item.cantidad = int(request.POST["cantidad"])
+    item.save()
+
+    # actualizar total
+    order = item.order
+    order.total = sum(i.total() for i in order.items.all())
+    order.save()
+
+    return redirect("carrito")
+
+
+def eliminar_item(request, id):
+    item = OrderItem.objects.get(id=id)
+    order = item.order
+    item.delete()
+
+    order.total = sum(i.total() for i in order.items.all())
+    order.save()
+
+    return redirect("carrito")
+
+
+def agregar_al_carrito(request, id):
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    producto = get_object_or_404(Productos, id_producto=id)
+
+    # Obtener o crear orden pendiente
+    order, created = Order.objects.get_or_create(
+        user=request.user,
+        status="pending",
+        defaults={"total": 0}
+    )
+
+    # Buscar si el producto ya está en el carrito
+    item, item_created = OrderItem.objects.get_or_create(
+        order=order,
+        producto=producto,
+        defaults={
+            "cantidad": 1,
+            "precio_unitario": producto.precio
+        }
+    )
+
+    if not item_created:
+        item.cantidad += 1
+        item.save()
+
+    # Recalcular total
+    order.total = sum(i.total() for i in order.items.all())
+    order.save()
+
+    messages.success(request, f"{producto.nombre} agregado al carrito.")
+    return redirect("carrito")

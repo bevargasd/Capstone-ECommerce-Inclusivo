@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Perfil
+from .models import Perfil, Productos
 
 class RegistroForm(UserCreationForm):
     email = forms.EmailField(
@@ -95,3 +95,27 @@ class LoginForm(forms.Form):
         if not identifier:
             raise forms.ValidationError('Ingrese usuario o correo.')
         return identifier
+
+
+class ProductoForm(forms.ModelForm):
+    class Meta:
+        model = Productos
+        fields = [
+            "nombre",
+            "marca",
+            "descripcion",
+            "precio",
+            "stock",
+            "categoria",
+            "imagen_uno",
+            "imagen_dos",
+        ]
+
+        widgets = {
+            "nombre": forms.TextInput(attrs={"class": "form-control"}),
+            "marca": forms.TextInput(attrs={"class": "form-control"}),
+            "descripcion": forms.Textarea(attrs={"class": "form-control"}),
+            "precio": forms.NumberInput(attrs={"class": "form-control"}),
+            "stock": forms.NumberInput(attrs={"class": "form-control"}),
+            "categoria": forms.Select(attrs={"class": "form-control"}),
+        }

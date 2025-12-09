@@ -10,11 +10,12 @@
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
   <style>
 body {
   margin: 0;
   padding: 0;
-  background-image: url("{% static 'IMG/placeholder.jpg' %}");
+  background-image: url("/static/IMG/placeholder.jpg");
   background-size: cover;
   background-position: center;
   background-attachment: fixed; /* 🔹 Esto hace que el fondo permanezca fijo */
@@ -54,6 +55,7 @@ body::after {
   width: 95%;
   max-width: 700px;
   margin: 80px auto 40px auto;
+  margin-top: 100px;
   padding: 25px;
   background-color: #fff;
   border-radius: 12px;
@@ -105,8 +107,10 @@ body::after {
       .form-container { padding: 16px; margin-top: 60px; }
       .image-row { flex-direction: column; gap: 12px; }
     }
+  
   </style>
 </head>
+
 <body>
   {% include 'plantillas/navbar.html' %}
 
@@ -115,114 +119,70 @@ body::after {
       {% csrf_token %}
       <h5>Agregar productos</h5>
 
-      <div class="form-group">
-        <label for="nomProd">Nombre</label>
-        <input type="text" id="nomProd" name="nomProd" class="form-control" required>
-      </div>
+      <div class="row">
+        <!-- Nombre -->
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" name="nombre" class="form-control" required>
+          </div>
+        </div>
 
-      <div class="form-group">
-        <label for="descripcionProducto">Descripción</label>
-        <textarea id="descripcionProducto" name="descripcionProducto" class="form-control" required></textarea>
-      </div>
+        <!-- Precio -->
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="precio">Precio</label>
+            <input type="number" id="precio" name="precio" class="form-control" required>
+            </div>
+        </div>
 
-      <div class="form-group">
-        <label for="precioProducto">Precio</label>
-        <input type="number" id="precioProducto" name="precioProducto" class="form-control" required>
-      </div>
+        
+        <!-- Stock -->
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="stock">Stock</label>
+            <input type="number" id="stock" name="stock" class="form-control" required>
+            </div>
+        </div>
+        
+        <!-- Marca -->
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="marca">Marca</label>
+            <input type="text" id="marca" name="marca" class="form-control">
+          </div>
+        </div>
 
-      <div class="form-group">
-        <label for="stockProducto">Stock</label>
-        <input type="number" id="stockProducto" name="stockProducto" class="form-control" required>
       </div>
-
-      <!-- Tipo de Producto -->
+    
+      <!-- Categoría -->
       <div class="form-group">
-        <label for="tipo_producto">Tipo de producto</label>
-        <select name="tipo_producto" id="tipo_producto" class="form-control" required onchange="toggleFields()">
+        <label for="categoria">Categoría</label>
+        <select name="categoria" id="categoria" class="form-control" required>
           <option value="">Seleccionar</option>
-          {% for m in tipo_producto %}
-          <option value="{{ m.nombre_tipo }}">{{ m.nombre_tipo }}</option>
+          {% for c in categorias %}
+          <option value="{{ c.id }}">{{ c.nombre }}</option>
           {% endfor %}
         </select>
       </div>
 
-      <!-- Campos adicionales -->
       <div class="form-group">
-        <label for="marca">Marca</label>
-        <input type="text" id="marca" name="marca" class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label for="socket">Socket</label>
-        <input type="text" id="socket" name="socket" class="form-control">
-      </div>
-
-      <!-- Tarjetas de Video -->
-      <div id="video_fields" style="display:none;">
-        <div class="form-group">
-          <label for="memoria_video">Memoria de Video</label>
-          <input type="text" id="memoria_video" name="memoria_video" class="form-control" value="0">
-        </div>
-        <div class="form-group">
-          <label for="tipo_memoria">Tipo de Memoria</label>
-          <input type="text" id="tipo_memoria" name="tipo_memoria" class="form-control" value="Tipo de memoria">
-        </div>
-      </div>
-
-      <!-- Procesadores -->
-      <div id="procesador_fields" style="display:none;">
-        <div class="form-group">
-          <label for="frecuencia_base">Frecuencia Base</label>
-          <input type="text" id="frecuencia_base" name="frecuencia_base" class="form-control" value="0">
-        </div>
-        <div class="form-group">
-          <label for="frecuencia_boost">Frecuencia Boost</label>
-          <input type="text" id="frecuencia_boost" name="frecuencia_boost" class="form-control" value="0">
-        </div>
-        <div class="form-group">
-          <label for="nucleos">Núcleos</label>
-          <input type="number" id="nucleos" name="nucleos" class="form-control" value="0">
-        </div>
-        <div class="form-group">
-          <label for="hilos">Hilos</label>
-          <input type="number" id="hilos" name="hilos" class="form-control" value="0">
-        </div>
+        <label for="descripcion">Descripción</label>
+        <textarea id="descripcion" name="descripcion" class="form-control" required></textarea>
       </div>
 
       <!-- Imágenes -->
       <div class="image-row">
         <div class="form-group small-form-group">
-          <label for="imagenUno">Foto Producto</label>
-          <input type="file" name="imagenUno" id="imagenUno" class="form-control-file" required>
-          {% if producto.imagen_uno %}
-          <img src="{{ producto.imagen_uno.url }}" alt="Imagen Uno" class="img-fluid mt-2 rounded">
-          {% endif %}
+          <label for="imagen_uno">Foto Producto</label>
+          <input type="file" name="imagen_uno" id="imagen_uno" class="form-control-file" required>
         </div>
         <div class="form-group small-form-group">
-          <label for="imagenDos">Foto Producto 2</label>
-          <input type="file" name="imagenDos" id="imagenDos" class="form-control-file">
-          {% if producto.imagen_dos %}
-          <img src="{{ producto.imagen_dos.url }}" alt="Imagen Dos" class="img-fluid mt-2 rounded">
-          {% endif %}
+          <label for="imagen_dos">Foto Producto 2</label>
+          <input type="file" name="imagen_dos" id="imagen_dos" class="form-control-file">
         </div>
       </div>
 
-      <div class="image-row">
-        <div class="form-group small-form-group">
-          <label for="imagenTres">Foto Producto 3</label>
-          <input type="file" name="imagenTres" id="imagenTres" class="form-control-file">
-          {% if producto.imagen_tres %}
-          <img src="{{ producto.imagen_tres.url }}" alt="Imagen Tres" class="img-fluid mt-2 rounded">
-          {% endif %}
-        </div>
-        <div class="form-group small-form-group">
-          <label for="imagenCuatro">Foto Producto 4</label>
-          <input type="file" name="imagenCuatro" id="imagenCuatro" class="form-control-file">
-          {% if producto.imagen_cuatro %}
-          <img src="{{ producto.imagen_cuatro.url }}" alt="Imagen Cuatro" class="img-fluid mt-2 rounded">
-          {% endif %}
-        </div>
-      </div>
 
       <button type="submit" class="submit-button">Agregar producto</button>
       <a href="{% url 'tienda' %}" class="submit-button text-center d-block" id="volverTienda">Volver a la tienda</a>
@@ -235,16 +195,9 @@ body::after {
         </div>
         {% endfor %}
       {% endif %}
+
     </form>
   </div>
 
-  <script>
-    function toggleFields() {
-      const tipoProducto = document.getElementById("tipo_producto").value;
-      document.getElementById("video_fields").style.display = tipoProducto === "Graficas" ? "block" : "none";
-      document.getElementById("procesador_fields").style.display = tipoProducto === "Procesador" ? "block" : "none";
-    }
-    document.addEventListener("DOMContentLoaded", toggleFields);
-  </script>
 </body>
 </html>

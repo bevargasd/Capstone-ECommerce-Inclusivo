@@ -6,30 +6,41 @@
 
   <div class="viewport">
     <ul class="track" id="track" role="list">
-      <li class="card" data-command="producto uno|zanahoria|carrot" role="listitem">
-        <div class="product-img bg-pink"><span>🥕</span></div>
-        <div class="card-body">
-          <h3 class="title">Zanahoria</h3>
-          <p class="desc">⚡ Descripción.</p>
-          <div class="actions"><a href="{% url 'producto' %}" class="btn">Purchase now</a></div>
+
+      {% for producto in productos %}
+      <li class="card" role="listitem">
+
+        <div class="product-img">
+          {% if producto.imagen_uno %}
+            <img src="{{ producto.imagen_uno.url }}" 
+                 alt="{{ producto.nombre }}" 
+                 style="width:100%; height:100%; object-fit:cover;">
+          {% else %}
+            <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#ddd;">
+              <span style="color:#555;">sin imagen</span>
+            </div>
+          {% endif %}
         </div>
-      </li>
-      <li class="card" data-command="producto dos|brocoli|broccoli" role="listitem">
-        <div class="product-img bg-mint"><span>🥦</span></div>
+
         <div class="card-body">
-          <h3 class="title">Brocoli</h3>
-          <p class="desc">Descripción.</p>
-          <div class="actions"><a href="{% url 'producto' %}" class="btn">Purchase now</a></div>
+          <h3 class="title">{{ producto.nombre }}</h3>
+
+          <p class="desc">{{ producto.descripcion|truncatechars:80 }}</p>
+
+          {% if producto.precio %}
+          <p class="price" style="font-weight:bold; font-size:18px; color:#1e5ed6;">
+            ${{ producto.precio }}
+          </p>
+          {% endif %}
+
+          <div class="actions">
+            <a href="{% url 'producto' producto.id_producto %}" class="btn">Ver más</a>
+          </div>
         </div>
+
       </li>
-      <li class="card" data-command="producto tres|tomate|tomato" role="listitem">
-        <div class="product-img bg-blue"><span>🍅</span></div>
-        <div class="card-body">
-          <h3 class="title">Tomate</h3>
-          <p class="desc">Descripción.</p>
-          <div class="actions"><a href="{% url 'producto' %}" class="btn">Purchase now</a></div>
-        </div>
-      </li>
+      {% endfor %}
+
     </ul>
   </div>
 

@@ -13,7 +13,11 @@ urlpatterns = [
     path("compara/", views.compara, name="compara"),
     path("publicaciones/", views.publicaciones, name="publicaciones"),
     path("agregar/", views.agregar, name="agregar"),
-    path("producto/", views.producto, name="producto"),
+    path("producto/<int:id>/", views.producto, name="producto"),
     path("logout/", views.cerrar_sesion, name="logout"),
+    path("api/crear-orden/", views.crear_orden, name="crear_orden"),
+    path("actualizar-item/<int:id>/", views.actualizar_item, name="actualizar_item"),
+    path("eliminar-item/<int:id>/", views.eliminar_item, name="eliminar_item"),
+    path("agregar/<int:id>/", views.agregar_al_carrito, name="agregar_al_carrito"),
 
 ]

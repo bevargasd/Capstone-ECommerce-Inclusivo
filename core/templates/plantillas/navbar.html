@@ -18,11 +18,6 @@
     <div class="collapse navbar-collapse" id="mainNavbar">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'carrito' %}" data-command="carrito|mi carrito|ver carrito">
-            <i class="fa-solid fa-cart-shopping"></i> Carrito
-          </a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" href="{% url 'chat' %}" data-command="asistente|chat">
             <i class="fas fa-comments"></i> Asistente
           </a>
@@ -30,11 +25,6 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'tienda' %}" data-command="tienda|productos">
             <i class="fas fa-box"></i> Tienda
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'foro' %}" data-command="foro">
-            <i class="fas fa-comments"></i> Foro
           </a>
         </li>
         <li class="nav-item">
@@ -76,6 +66,11 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'perfil' %}">
             <i class="fas fa-user"></i> Perfil
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'carrito' %}" data-command="carrito|mi carrito|ver carrito">
+            <i class="fa-solid fa-cart-shopping"></i> Carrito
           </a>
         </li>
 
@@ -147,6 +142,41 @@
 </style>
 
 <script>
+  const productCommands = [
+    {% for p in productos %}
+      {
+        label: "{{ p.nombre|escapejs }}",
+        phrases: [
+          "{{ p.nombre|lower|escapejs }}",
+          "{{ p.nombre|lower|slugify|escapejs }}",
+        ],
+        url: "/producto/{{ p.id_producto }}/"
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+</script>
+<script>
+const categoryCommands = [
+    {% for categoria in categorias %}
+    {
+        label: "{{ categoria.nombre|lower }}",
+        phrases: [
+            "{{ categoria.nombre|lower }}",
+            "ir a {{ categoria.nombre|lower }}",
+            "mostrar {{ categoria.nombre|lower }}"
+        ],
+        action: () => {
+            const el = document.getElementById("categoria-{{ categoria.id }}");
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+console.log("cat commands:", categoryCommands);
+</script>
+
+<script>
+
   document.addEventListener('DOMContentLoaded', () => {
     const voiceBtn = document.getElementById('voiceBtn');
     const indicator = document.getElementById('voiceIndicator');
@@ -266,20 +296,52 @@
       if (/\b(carrito|mi carrito)\b/.test(t)) { speak('Abriendo carrito'); showToast('⏳ Abriendo carrito'); window.location.href = "{% url 'carrito' %}"; return; }
 
       // --- SLIDER PRODUCTOS ---
-      let matched = null;
-      for (const cmd of sliderCommands) {
-        if (cmd.phrases.some(p => t === p || t.includes(p) || p.includes(t))) {
-          matched = cmd;
-          break;
-        }
-      }
-      if (matched) {
-        speak(`Abriendo ${matched.label}`);
-        showToast(`✅ ${matched.label}`);
-        if (matched.url) window.location.href = matched.url;
-        else matched.el.click();
-        return;
-      }
+      const allCommands = [...sliderCommands, ...productCommands, ...categoryCommands];
+
+      function handleSpeech(t) {
+  const text = t.toLowerCase().trim();
+  let matched = null;
+
+  for (const cmd of commands) {
+    if (cmd.phrases.some(p => text.includes(p))) {
+      matched = cmd;
+      break;
+    }
+  }
+
+  if (matched) {
+    speak(`abriendo ${matched.label}`);
+    showToast(`✅ ${matched.label}`);
+
+    if (matched.url) {
+      window.location.href = matched.url;
+    }
+    else if (matched.action) {
+      matched.action();
+    }
+    else if (matched.el) {
+      matched.el.click();
+    }
+
+    return;
+  }
+}
+
+let matched = null;
+for (const cmd of allCommands) {
+  if (cmd.phrases.some(p => t === p || t.includes(p) || p.includes(t))) {
+    matched = cmd;
+    break;
+  }
+}
+
+if (matched) {
+  speak(`Abriendo ${matched.label}`);
+  showToast(`✅ ${matched.label}`);
+  if (matched.url) window.location.href = matched.url;
+  else matched.el?.click();
+  return;
+}
 
       // --- LUPA ---
       if (/\b(lupa|activar lupa|zoom|acercar)\b/.test(t)) { enableZoom(); return; }
